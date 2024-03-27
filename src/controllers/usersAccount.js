@@ -5,8 +5,6 @@ const {
   validatePassword,
   validateEmail,
   validatePasswordConfirmation,
-  validateName,
-  validateLastname,
 } = require("../utils/index");
 
 const usersAccountsServices = require("../services/usersAccount");
@@ -168,10 +166,11 @@ const deleteAccount = async (req, res, next) => {
     if (accountDeleted) {
       req.logout((err) => {
         if (err) return next(err);
-
-        return res.status(200).json({
-          statusCode: 200,
-          msg: "Account deleted successfully!",
+        req.session.destroy((err) => {
+          return res.status(200).json({
+            statusCode: 200,
+            msg: "Account deleted successfully!",
+          });
         });
       });
     }
