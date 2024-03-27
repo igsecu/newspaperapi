@@ -1,14 +1,10 @@
 const express = require("express");
 const app = express();
-
 const PORT = process.env.PORT || 5000;
-
 const db = require("./src/database/db");
-
 const router = require("./src/routes/index");
-
-const session = require("express-session");
 const passport = require("passport");
+const { sessionMiddleware } = require("./src/controllers/session");
 
 // Database Models
 const UsersAccount = require("./src/models/UsersAccount");
@@ -22,13 +18,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Express Session Middleware
-app.use(
-  session({
-    secret: `${process.env.SESSION_SECRET}`,
-    resave: false,
-    saveUninitialized: false,
-  })
-);
+app.use(sessionMiddleware);
 
 // Passport Config
 require("./src/passport/config")(passport);
