@@ -9,9 +9,11 @@ const logout = async (req, res, next) => {
   req.logout((err) => {
     if (err) return next(err);
 
-    return res.status(200).json({
-      statusCode: 200,
-      msg: "You successfully logged out!",
+    req.session.destroy((err) => {
+      return res.status(200).json({
+        statusCode: 200,
+        msg: "You successfully logged out!",
+      });
     });
   });
 };
