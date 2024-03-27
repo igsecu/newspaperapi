@@ -1,5 +1,5 @@
 const { DataTypes } = require("sequelize");
-const db = require("../../db");
+const db = require("../database/db");
 
 const UsersAccount = db.define(
   "usersAccount",
@@ -19,6 +19,10 @@ const UsersAccount = db.define(
       unique: true,
     },
     isBanned: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+    },
+    isVerified: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
