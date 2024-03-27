@@ -7,6 +7,16 @@ const db = require("./src/database/db");
 
 const router = require("./src/routes/index");
 
+const session = require("express-session");
+const passport = require("passport");
+
+// Database Models
+const UsersAccount = require("./src/models/UsersAccount");
+const Notification = require("./src/models/Notification");
+
+UsersAccount.hasMany(Notification);
+Notification.belongsTo(UsersAccount);
+
 // Body-Parser middleware
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
@@ -51,3 +61,5 @@ db.sync({}).then(() => {
     console.log(`Server listening on port ${PORT}...`);
   });
 });
+
+module.exports = app;
