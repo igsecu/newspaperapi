@@ -30,6 +30,11 @@ app.use(
   })
 );
 
+// Passport Config
+require("./src/passport/config")(passport);
+app.use(passport.initialize());
+app.use(passport.session());
+
 // Res Headers
 app.use((req, res, next) => {
   res.header("Access-Control-Allow-Origin", "*");
