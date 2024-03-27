@@ -18,11 +18,6 @@ const UsersAccount = db.define(
       allowNull: false,
       unique: true,
     },
-    username: {
-      type: DataTypes.STRING,
-      allowNull: false,
-      unique: true,
-    },
     isBanned: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
