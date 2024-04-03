@@ -38,6 +38,13 @@ module.exports = (passport) => {
                     });
                   }
 
+                  if (account.isVerified === false) {
+                    return done(null, false, {
+                      statusCode: 400,
+                      msg: "Please verify your account!",
+                    });
+                  }
+
                   return done(null, account);
                 } else {
                   return done(null, false, {
