@@ -1,6 +1,7 @@
 const LocalStrategy = require("passport-local").Strategy;
 
 const usersAccountsServices = require("../services/usersAccount");
+const adminAccountServices = require("../services/adminAccount");
 
 const bcrypt = require("bcryptjs");
 
@@ -66,6 +67,52 @@ module.exports = (passport) => {
       }
     )
   ),
+    passport.use(
+      "admin",
+      new LocalStrategy(
+        { usernameField: "email" },
+        async (email, password, done) => {
+          try {
+            // Match email
+            const accountFound = await adminAccountServices.checkEmailExist(
+              email
+            );
+            if (accountFound) {
+              // Match password
+
+              bcrypt.compare(
+                password,
+                accountFound.password,
+                async (err, isMatch) => {
+                  if (err) {
+                    return done(err, null);
+                  }
+                  if (isMatch) {
+                    const account = await adminAccountServices.getAccountById(
+                      accountFound.id
+                    );
+
+                    return done(null, account);
+                  } else {
+                    return done(null, false, {
+                      statusCode: 400,
+                      msg: `Incorrect password!`,
+                    });
+                  }
+                }
+              );
+            } else {
+              return done(null, false, {
+                statusCode: 404,
+                msg: `Email address not found!`,
+              });
+            }
+          } catch (error) {
+            return done(error, null);
+          }
+        }
+      )
+    ),
     passport.serializeUser((user, done) => {
       done(null, user.id);
     });
@@ -76,7 +123,13 @@ module.exports = (passport) => {
       if (accountFound) {
         done(null, { type: "USER", ...accountFound });
       } else {
-        done(null, { msg: `Account not found!` });
+        const adminFound = await adminAccountServices.getAccountById(id);
+
+        if (adminFound) {
+          done(null, { type: "ADMIN", ...adminFound });
+        } else {
+          done(null, { msg: `Account not found!` });
+        }
       }
     } catch (error) {
       done(error, null);
