@@ -37,4 +37,4 @@ const WriterAccount = db.define(
   }
 );
 
-module.exports = UsersAccount;
+module.exports = WriterAccount;
