@@ -1,5 +1,7 @@
 const WriterAccount = require("../models/WriterAccount");
 
+const { deleteImage } = require("../utils/cloudinary");
+
 // Create admin account
 const createAccount = async (hash, email) => {
   try {
@@ -51,8 +53,41 @@ const checkEmailExist = async (email) => {
   }
 };
 
+// Update profile image
+const updateProfileImage = async (id, image, image_id) => {
+  try {
+    const account = await WriterAccount.findByPk(id);
+
+    if (account.image_id !== null) {
+      await deleteImage(account.image_id);
+    }
+
+    const updatedAccount = await WriterAccount.update(
+      {
+        image,
+        image_id,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (updatedAccount[0] === 1) {
+      const account = await getAccountById(id);
+
+      return account;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update the writer account profile image!");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
   checkEmailExist,
+  updateProfileImage,
 };
