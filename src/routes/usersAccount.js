@@ -5,6 +5,8 @@ const usersAccountsController = require("../controllers/usersAccount");
 const authController = require("../controllers/auth");
 const logoutController = require("../controllers/logout");
 
+// Verify account
+router.get("/account/:id/verify", usersAccountsController.verifyAccount);
 // Logout process
 router.get("/logout", logoutController.logout);
 // Get logged in account
