@@ -24,10 +24,10 @@ router.put(
   writerAccountController.updateProfileImage
 );
 // Delete profile image
-/* router.put(
+router.delete(
   "/account/image",
   authController.ensureAuthenticatedWriter,
   writerAccountController.deleteProfileImage
-); */
+);
 
 module.exports = router;
