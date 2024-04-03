@@ -7,6 +7,6 @@ const adminAccountRouter = require("./adminAccount");
 // Specify routers root routes
 router.use("/users", usersAccountRouter);
 
-router.use("admin", adminAccountRouter);
+router.use("/admin", adminAccountRouter);
 
 module.exports = router;
