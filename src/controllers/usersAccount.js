@@ -5,6 +5,7 @@ const {
   validatePassword,
   validateEmail,
   validatePasswordConfirmation,
+  validateId,
 } = require("../utils/index");
 
 const usersAccountsServices = require("../services/usersAccount");
@@ -137,7 +138,7 @@ const createAccount = async (req, res, next) => {
 
             const url = `${process.env.URL}/api/users/account/${account.id}/verify`;
 
-            await emailsServices.sendEmailVerification(url, account.email);
+            //await emailsServices.sendEmailVerification(url, account.email);
 
             await notificationsServices.createNotification(
               account.id,
@@ -184,9 +185,62 @@ const deleteAccount = async (req, res, next) => {
   }
 };
 
+// Verify account
+const verifyAccount = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    if (!validateId(id)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: `ID: ${id} - Invalid format!`,
+      });
+    }
+
+    const accountFound = await usersAccountsServices.getAccountById(id);
+
+    if (!accountFound) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Account with ID: ${id} not found!`,
+      });
+    }
+
+    if (accountFound.isBanned === true) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "This account is banned! You can not verify it...",
+      });
+    }
+
+    if (accountFound.isVerified === true) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "This account is already verified!",
+      });
+    }
+
+    const updatedAccount = await usersAccountsServices.updateIsVerifiedAccount(
+      id
+    );
+
+    if (updatedAccount) {
+      return res.status(200).json({
+        statusCode: 200,
+        msg: "Your account is now verified!",
+        data: updatedAccount,
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
   getLoggedInAccount,
   deleteAccount,
+  verifyAccount,
 };
