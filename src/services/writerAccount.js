@@ -85,9 +85,44 @@ const updateProfileImage = async (id, image, image_id) => {
   }
 };
 
+// Delete profile image
+const deleteProfileImage = async (id) => {
+  try {
+    const account = await WriterAccount.findByPk(id);
+
+    if (account.image_id === null) {
+      return null;
+    }
+
+    await deleteImage(account.image_id);
+
+    const updatedAccount = await WriterAccount.update(
+      {
+        image: null,
+        image_id: null,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (updatedAccount[0] === 1) {
+      const account = await getAccountById(id);
+
+      return account;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to delete writer profile image");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
   checkEmailExist,
   updateProfileImage,
+  deleteProfileImage,
 };
