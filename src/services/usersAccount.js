@@ -69,9 +69,35 @@ const deleteAccount = async (id) => {
   }
 };
 
+// Update isVerified Account
+const updateIsVerifiedAccount = async (id) => {
+  try {
+    const updatedAccount = await Account.update(
+      {
+        isVerified: true,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (updatedAccount[0] === 1) {
+      const account = await getAccountById(id);
+
+      return account;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to verify account!");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
   getAccountById,
   deleteAccount,
+  updateIsVerifiedAccount,
 };
