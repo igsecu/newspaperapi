@@ -24,7 +24,7 @@ router.put(
   writerAccountController.updateProfileImage
 );
 // Delete profile image
-router.delete(
+router.deleteProfileImage(
   "/account/image",
   authController.ensureAuthenticatedWriter,
   writerAccountController.deleteProfileImage
