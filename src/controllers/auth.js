@@ -36,7 +36,27 @@ const ensureAuthenticatedAdmin = (req, res, next) => {
   }
 };
 
+// Access Control Writer
+const ensureAuthenticatedWriter = (req, res, next) => {
+  if (req.isAuthenticated()) {
+    if (req.user && req.user.type === "WRITER") {
+      next();
+    } else {
+      return res.status(401).json({
+        statusCode: 401,
+        msg: `You are not authorized! Please login with an Writer account...`,
+      });
+    }
+  } else {
+    return res.status(401).json({
+      statusCode: 401,
+      msg: `You are not authorized! Please login...`,
+    });
+  }
+};
+
 module.exports = {
   ensureAuthenticatedUser,
   ensureAuthenticatedAdmin,
+  ensureAuthenticatedWriter,
 };
