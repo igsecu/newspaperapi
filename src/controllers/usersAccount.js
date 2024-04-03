@@ -9,6 +9,7 @@ const {
 
 const usersAccountsServices = require("../services/usersAccount");
 const notificationsServices = require("../services/notifications");
+const emailsServices = require("../services/emails");
 
 // Get logged in account
 const getLoggedInAccount = async (req, res, next) => {
@@ -133,6 +134,10 @@ const createAccount = async (req, res, next) => {
             const account = await usersAccountsServices.getAccountById(
               accountCreated.id
             );
+
+            const url = `${process.env.URL}/api/users/account/${account.id}/verify`;
+
+            await emailsServices.sendEmailVerification(url, account.email);
 
             await notificationsServices.createNotification(
               account.id,
