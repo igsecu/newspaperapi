@@ -137,8 +137,32 @@ const updateProfileImage = async (req, res, next) => {
   }
 };
 
+// Delete profile image
+const deleteProfileImage = async (req, res, next) => {
+  try {
+    const account = await writerAccountServices.deleteProfileImage(req.user.id);
+
+    if (account === null) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "You do not have a profile image to delete!",
+      });
+    }
+
+    return res.status(200).json({
+      statusCode: 200,
+      msg: "Profile image deleted successfully!",
+      data: account,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return next("Error trying to delete writer account profile image");
+  }
+};
+
 module.exports = {
   getLoggedInAccount,
   login,
   updateProfileImage,
+  deleteProfileImage,
 };
