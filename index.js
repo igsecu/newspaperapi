@@ -9,9 +9,14 @@ const { sessionMiddleware } = require("./src/controllers/session");
 // Database Models
 const UsersAccount = require("./src/models/UsersAccount");
 const Notification = require("./src/models/Notification");
+const Section = require("./src/models/Section");
+const WriterAccount = require("./src/models/WriterAccount");
 
 UsersAccount.hasMany(Notification);
 Notification.belongsTo(UsersAccount);
+
+Section.hasMany(WriterAccount);
+WriterAccount.belongsTo(Section);
 
 // Body-Parser middleware
 app.use(express.json());
