@@ -7,6 +7,9 @@ const {
   validatePasswordConfirmation,
   validateId,
   validateName,
+  validateBanned,
+  validateIsShown,
+  validateSubscribers,
 } = require("../utils/index");
 
 const adminAccountServices = require("../services/adminAccount");
@@ -284,10 +287,79 @@ const createSection = async (req, res, next) => {
   }
 };
 
+// Update article
+const updateArticle = async (req, res, next) => {
+  const { id } = req.params;
+  const { subscribers, shown } = req.query;
+
+  if (!validateId(id)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: `ID: ${id} - Invalid format!`,
+    });
+  }
+
+  try {
+    let updatedArticle;
+
+    if (subscribers) {
+      if (validateSubscribers(subscribers)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: validateSubscribers(subscribers),
+        });
+      }
+
+      updatedArticle = await adminAccountServices.updateArticleForSubscribers(
+        id,
+        subscribers.toLowerCase()
+      );
+    }
+
+    if (shown) {
+      if (validateIsShown(shown)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: validateIsShown(shown),
+        });
+      }
+
+      updatedArticle = await adminAccountServices.updateArticleIsShown(
+        id,
+        shown.toLowerCase()
+      );
+    }
+
+    if (!subscribers && !shown) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "Query parameter is missing!",
+      });
+    }
+
+    if (!updatedArticle) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Article with ID: ${id} not found!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      msg: `Article updated successfully!`,
+      data: updatedArticle,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
   getLoggedInAccount,
   createWriter,
   createSection,
+  updateArticle,
 };
