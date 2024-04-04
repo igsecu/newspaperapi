@@ -1,4 +1,3 @@
-const bcrypt = require("bcryptjs");
 const passport = require("passport");
 
 const {
@@ -9,13 +8,17 @@ const {
   validateSubtitle,
   validateIntroduction,
   validateBody,
+  validateId,
 } = require("../utils/index");
 
 const writerAccountServices = require("../services/writerAccount");
 
 const fsExtra = require("fs-extra");
 
-const { uploadWriterImage } = require("../utils/cloudinary");
+const {
+  uploadWriterImage,
+  uploadArticleImage,
+} = require("../utils/cloudinary");
 
 // Login process
 const login = async (req, res, next) => {
@@ -222,10 +225,98 @@ const createArticle = async (req, res, next) => {
   }
 };
 
+// Update article image
+const updateArticleImage = async (req, res, next) => {
+  const { id } = req.params;
+
+  if (!validateId(id)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: `ID: ${id} - Invalid format!`,
+    });
+  }
+
+  try {
+    const articleFound = await writerAccountServices.getArticleById(id);
+
+    if (!articleFound) {
+      if (req.files?.image) {
+        await fsExtra.unlink(req.files.image.tempFilePath);
+      }
+
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Article with ID: ${id} not found!`,
+      });
+    }
+
+    if (articleFound.writer.id !== req.user.id) {
+      if (req.files?.image) {
+        await fsExtra.unlink(req.files.image.tempFilePath);
+      }
+
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "You can not update an article that is not yours!",
+      });
+    }
+
+    if (req.files?.image) {
+      if (await validateFileType(req.files.image.tempFilePath)) {
+        const message = await validateFileType(req.files.image.tempFilePath);
+
+        await fsExtra.unlink(req.files.image.tempFilePath);
+
+        return res.status(400).json({
+          statusCode: 400,
+          msg: message,
+        });
+      }
+
+      if (await validateImageSize(req.files.image.tempFilePath)) {
+        const message = await validateImageSize(req.files.image.tempFilePath);
+
+        await fsExtra.unlink(req.files.image.tempFilePath);
+
+        return res.status(400).json({
+          statusCode: 400,
+          msg: message,
+        });
+      }
+
+      const result = await uploadArticleImage(req.files.image.tempFilePath);
+
+      await fsExtra.unlink(req.files.image.tempFilePath);
+
+      const articleUpdated = await writerAccountServices.updateArticleImage(
+        id,
+        result.secure_url,
+        result.public_id
+      );
+
+      return res.status(200).json({
+        statusCode: 200,
+        msg: "Your article image was updated successfully!",
+        data: articleUpdated,
+      });
+    } else {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "Image file is missing!",
+      });
+    }
+  } catch (error) {
+    await fsExtra.unlink(req.files.image.tempFilePath);
+    console.log(error.message);
+    return next(error);
+  }
+};
+
 module.exports = {
   getLoggedInAccount,
   login,
   updateProfileImage,
   deleteProfileImage,
   createArticle,
+  updateArticleImage,
 };
