@@ -461,6 +461,8 @@ describe("POST /api/admin/section route -> create new section", () => {
   });
 });
 
+let writer1_id;
+
 describe("POST /api/admin/writer/account route -> create new writer account", () => {
   it("it should return 401 status code -> not authorized", async () => {
     const response = await request(app).post("/api/admin/writer/account");
@@ -735,6 +737,7 @@ describe("POST /api/admin/writer/account route -> create new writer account", ()
 
     expect(response.status).toBe(201);
     expect(response.body.msg).toBe("Account created successfully!");
+    writer1_id = response.body.data.id;
   });
   it("it should return a 400 status code -> email exists", async () => {
     const user = {
@@ -1062,6 +1065,61 @@ describe("PUT /api/admin/user/:id route -> update user account", () => {
   it("it should return 200 status code -> account updated", async () => {
     const response = await request(app)
       .put(`/api/admin/user/${user1_id}?banned=TrUe`)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+  });
+  it("it should return a 200 status code -> logout process", async () => {
+    const response = await request(app)
+      .get("/api/admin/logout")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You successfully logged out!");
+  });
+});
+
+describe("PUT /api/admin/writer/:id route -> update writer account", () => {
+  it("it should return 401 status code -> not authorized", async () => {
+    const response = await request(app).put("/api/admin/writer/1");
+    expect(response.status).toBe(401);
+    expect(response.body.msg).toBe("You are not authorized! Please login...");
+  });
+  it("it should return a 200 status code -> user logged in", async () => {
+    const user = {
+      email: "admin@newspaper.io",
+      password: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/admin/login").send(user);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You logged in successfully");
+    cookie = response.headers["set-cookie"];
+  });
+  it("it should return 400 status code -> id invalid format", async () => {
+    const response = await request(app)
+      .put("/api/admin/writer/1")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("ID: 1 - Invalid format!");
+  });
+  it("it should return 400 status code -> query parameter is missing", async () => {
+    const response = await request(app)
+      .put("/api/admin/writer/fa1c1745-5a24-414e-8dec-84504484786f")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Query parameter is missing");
+  });
+  it("it should return 404 status code -> account not found", async () => {
+    const response = await request(app)
+      .put("/api/admin/writer/fa1c1745-5a24-414e-8dec-84504484786f?banned=true")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe(
+      "Account with ID: fa1c1745-5a24-414e-8dec-84504484786f not found!"
+    );
+  });
+  it("it should return 200 status code -> account updated", async () => {
+    const response = await request(app)
+      .put(`/api/admin/writer/${writer1_id}?banned=TrUe`)
       .set("Cookie", cookie);
     expect(response.status).toBe(200);
   });
