@@ -5,6 +5,10 @@ const {
   validateEmail,
   validateImageSize,
   validateFileType,
+  validateTitle,
+  validateSubtitle,
+  validateIntroduction,
+  validateBody,
 } = require("../utils/index");
 
 const writerAccountServices = require("../services/writerAccount");
@@ -160,9 +164,68 @@ const deleteProfileImage = async (req, res, next) => {
   }
 };
 
+// Create article
+const createArticle = async (req, res, next) => {
+  const { title, subtitle, introduction, body } = req.body;
+
+  if (validateTitle(title)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: validateTitle(title),
+    });
+  }
+
+  if (validateSubtitle(subtitle)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: validateSubtitle(subtitle),
+    });
+  }
+
+  if (validateIntroduction(introduction)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: validateIntroduction(introduction),
+    });
+  }
+
+  if (validateBody(body)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: validateBody(body),
+    });
+  }
+
+  try {
+    const articleCreated = await writerAccountServices.createArticle(
+      title,
+      subtitle,
+      introduction,
+      body,
+      req.user.id,
+      req.user.section.id
+    );
+
+    if (articleCreated) {
+      const article = await writerAccountServices.getArticleById(
+        articleCreated.id
+      );
+
+      return res.status(201).json({
+        statusCode: 201,
+        msg: "Article created successfully!",
+        data: article,
+      });
+    }
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   getLoggedInAccount,
   login,
   updateProfileImage,
   deleteProfileImage,
+  createArticle,
 };
