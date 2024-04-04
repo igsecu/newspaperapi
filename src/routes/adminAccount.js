@@ -9,6 +9,12 @@ const authController = require("../controllers/auth");
 router.get("/logout", logoutController.logout);
 // Get logged in account
 router.get("/account", adminAccountController.getLoggedInAccount);
+// Create section
+router.post(
+  "/section",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.createSection
+);
 // Create writer
 router.post(
   "/writer/account",
