@@ -154,7 +154,7 @@ const getLoggedInAccount = async (req, res, next) => {
 
 // Create writer account
 const createWriter = async (req, res, next) => {
-  const { email, password, password2 } = req.body;
+  const { email, password, password2, sectionId } = req.body;
   try {
     // Validations
     if (validateEmail(email)) {
@@ -187,6 +187,29 @@ const createWriter = async (req, res, next) => {
       });
     }
 
+    if (!sectionId) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "sectionId is missing",
+      });
+    }
+
+    if (!validateId(sectionId)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: `sectionId: ${sectionId} - Invalid format!`,
+      });
+    }
+
+    const sectionFound = await adminAccountServices.getSectionById(sectionId);
+
+    if (!sectionFound) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Section with ID: ${sectionId} not found!`,
+      });
+    }
+
     // Hash Password
     bcrypt.genSalt(10, (err, salt) => {
       bcrypt.hash(password, salt, async (err, hash) => {
@@ -196,7 +219,8 @@ const createWriter = async (req, res, next) => {
         try {
           const accountCreated = await writerAccountServices.createAccount(
             hash,
-            email
+            email,
+            sectionId
           );
 
           if (accountCreated) {
