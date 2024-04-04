@@ -1,5 +1,6 @@
 const WriterAccount = require("../models/WriterAccount");
 const Section = require("../models/Section");
+const Article = require("../models/Article");
 
 const { deleteImage } = require("../utils/cloudinary");
 
@@ -129,10 +130,96 @@ const deleteProfileImage = async (id) => {
   }
 };
 
+// Create article
+const createArticle = async (
+  title,
+  subtitle,
+  introduction,
+  body,
+  writerId,
+  sectionId
+) => {
+  try {
+    const articleCreated = await Article.create({
+      title,
+      subtitle,
+      introduction,
+      body,
+      writerAccountId: writerId,
+      sectionId,
+    });
+
+    return articleCreated;
+  } catch (error) {
+    throw new Error("Error trying to create a new article");
+  }
+};
+
+// Get Article by id
+const getArticleById = async (id) => {
+  try {
+    const article = await Article.findByPk(id, {
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      include: [
+        {
+          model: WriterAccount,
+          attributes: ["id", "email", "image"],
+        },
+        {
+          model: Section,
+          attributes: ["id", "name"],
+        },
+      ],
+    });
+
+    if (article) {
+      return {
+        id: article.id,
+        title: article.title,
+        subtitle: article.subtitle,
+        introduction: article.introduction,
+        body: article.body,
+        photo: article.photo,
+        forSubscribers: article.forSubscribers,
+        isShown: article.isShown,
+        comments: article.comments,
+        readers: article.readers,
+        writer: {
+          id: article.writerAccount.id,
+          email: article.writerAccount.email,
+          image: article.writerAccount.image,
+        },
+        section: {
+          id: article.section.id,
+          name: article.section.name,
+        },
+      };
+    }
+
+    return article;
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to get an article by id");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
   checkEmailExist,
   updateProfileImage,
   deleteProfileImage,
+  createArticle,
+  getArticleById,
 };
