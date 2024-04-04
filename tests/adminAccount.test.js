@@ -6,6 +6,8 @@ const AdminAccount = require("../src/models/AdminAccount");
 const WriterAccount = require("../src/models/WriterAccount");
 const Section = require("../src/models/Section");
 const Article = require("../src/models/Article");
+const UsersAccount = require("../src/models/UsersAccount");
+const Notification = require("../src/models/Notification");
 
 const { generateText } = require("../src/utils/textGenerator");
 
@@ -16,6 +18,8 @@ beforeAll(async () => {
     await WriterAccount.sync({ force: true });
     await Section.sync({ force: true });
     await Article.sync({ force: true });
+    await UsersAccount.sync({ force: true });
+    await Notification.sync({ force: true });
   } catch (error) {
     console.log(error.message);
   }
@@ -917,6 +921,49 @@ describe("POST /api/writers/article route -> create new article", () => {
   });
 });
 
+let user1_id, user2_id, user3_id;
+
+describe("POST /api/account route -> create new user", () => {
+  it("it should return 201 status code -> create new account successfully", async () => {
+    const user = {
+      email: "user1@padely.io",
+      password: "F4k3ap1s.io",
+      password2: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/users/account").send(user);
+
+    expect(response.status).toBe(201);
+    expect(response.body.msg).toBe("Account created successfully!");
+    user1_id = response.body.data.id;
+  });
+  it("it should return 201 status code -> create new account successfully", async () => {
+    const user = {
+      email: "user2@padely.io",
+      password: "F4k3ap1s.io",
+      password2: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/users/account").send(user);
+
+    expect(response.status).toBe(201);
+    expect(response.body.msg).toBe("Account created successfully!");
+    user2_id = response.body.data.id;
+  });
+  it("it should return 201 status code -> create new account successfully", async () => {
+    const user = {
+      email: "USER3@padely.io",
+      password: "F4k3ap1s.io",
+      password2: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/users/account").send(user);
+    expect(response.status).toBe(201);
+    expect(response.body.msg).toBe("Account created successfully!");
+    user3_id = response.body.data.id;
+  });
+});
+
 describe("PUT /api/admin/article/:id route -> update article", () => {
   it("it should return 401 status code -> not authorized", async () => {
     const response = await request(app).put("/api/admin/article/1");
@@ -960,6 +1007,61 @@ describe("PUT /api/admin/article/:id route -> update article", () => {
   it("it should return 200 status code -> article updated success", async () => {
     const response = await request(app)
       .put(`/api/admin/article/${article1_id}?shown=true&subscribers=true`)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+  });
+  it("it should return a 200 status code -> logout process", async () => {
+    const response = await request(app)
+      .get("/api/admin/logout")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You successfully logged out!");
+  });
+});
+
+describe("PUT /api/admin/user/:id route -> update user account", () => {
+  it("it should return 401 status code -> not authorized", async () => {
+    const response = await request(app).put("/api/admin/user/1");
+    expect(response.status).toBe(401);
+    expect(response.body.msg).toBe("You are not authorized! Please login...");
+  });
+  it("it should return a 200 status code -> user logged in", async () => {
+    const user = {
+      email: "admin@newspaper.io",
+      password: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/admin/login").send(user);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You logged in successfully");
+    cookie = response.headers["set-cookie"];
+  });
+  it("it should return 400 status code -> id invalid format", async () => {
+    const response = await request(app)
+      .put("/api/admin/user/1")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("ID: 1 - Invalid format!");
+  });
+  it("it should return 400 status code -> query parameter is missing", async () => {
+    const response = await request(app)
+      .put("/api/admin/user/fa1c1745-5a24-414e-8dec-84504484786f")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Query parameter is missing");
+  });
+  it("it should return 404 status code -> account not found", async () => {
+    const response = await request(app)
+      .put("/api/admin/user/fa1c1745-5a24-414e-8dec-84504484786f?banned=true")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe(
+      "Account with ID: fa1c1745-5a24-414e-8dec-84504484786f not found!"
+    );
+  });
+  it("it should return 200 status code -> account updated", async () => {
+    const response = await request(app)
+      .put(`/api/admin/user/${user1_id}?banned=TrUe`)
       .set("Cookie", cookie);
     expect(response.status).toBe(200);
   });
