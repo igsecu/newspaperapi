@@ -214,6 +214,38 @@ const getArticleById = async (id) => {
   }
 };
 
+// Update article image
+const updateArticleImage = async (id, image, image_id) => {
+  try {
+    const article = await Article.findByPk(id);
+
+    if (article.photo_id !== null) {
+      await deleteImage(article.photo_id);
+    }
+
+    const updatedArticle = await Article.update(
+      {
+        photo: image,
+        photo_id: image_id,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (updatedArticle[0] === 1) {
+      const article = await getArticleById(id);
+
+      return article;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update article image");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -222,4 +254,5 @@ module.exports = {
   deleteProfileImage,
   createArticle,
   getArticleById,
+  updateArticleImage,
 };
