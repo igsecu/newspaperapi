@@ -7,6 +7,7 @@ const { Op } = require("sequelize");
 
 const writerAccountServices = require("../services/writerAccount");
 const usersAccountServices = require("../services/usersAccount");
+const WriterAccount = require("../models/WriterAccount");
 
 // Create admin account
 const createAccount = async (hash, email) => {
@@ -257,6 +258,56 @@ const updateAccount = async (id, banned) => {
   }
 };
 
+// Update writer account
+const updateWriterAccount = async (id, banned) => {
+  try {
+    const accountFound = await writerAccountServices.getAccountById(id);
+
+    if (!accountFound) {
+      return null;
+    }
+
+    if (banned === "true") {
+      const updatedAccount = await WriterAccount.update(
+        {
+          isBanned: true,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedAccount[0] === 1) {
+        const updatedAccount = await writerAccountServices.getAccountById(id);
+
+        return updatedAccount;
+      }
+    } else {
+      const updatedAccount = await WriterAccount.update(
+        {
+          isBanned: false,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedAccount[0] === 1) {
+        const updatedAccount = await writerAccountServices.getAccountById(id);
+
+        return updatedAccount;
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update writer account!");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -267,4 +318,5 @@ module.exports = {
   updateArticleForSubscribers,
   updateArticleIsShown,
   updateAccount,
+  updateWriterAccount,
 };
