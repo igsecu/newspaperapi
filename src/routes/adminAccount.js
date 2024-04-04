@@ -25,5 +25,11 @@ router.post(
 router.post("/login", adminAccountController.login);
 // Create admin account
 router.post("/account", adminAccountController.createAccount);
+// Update article
+router.put(
+  "/article/:id",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.updateArticle
+);
 
 module.exports = router;
