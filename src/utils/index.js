@@ -142,23 +142,32 @@ const validateLastname = (lastname) => {
   return false;
 };
 
-// Access Control Admin
-const ensureAuthenticatedAdmin = (req, res, next) => {
-  if (req.isAuthenticated()) {
-    if (req.user.type === "ADMIN") {
-      next();
-    } else {
-      return res.status(401).json({
-        statusCode: 401,
-        msg: `You are not authorized! Please login with a User account...`,
-      });
-    }
-  } else {
-    return res.status(401).json({
-      statusCode: 401,
-      msg: `You are not authorized! Please login...`,
-    });
-  }
+// Validates tile
+const validateTitle = (title) => {
+  if (!title) return "Title is missing";
+  if (typeof title !== "string") return "Title must be a string";
+  return false;
+};
+
+// Validates subtitle
+const validateSubtitle = (subtitle) => {
+  if (!subtitle) return "Subtitle is missing";
+  if (typeof subtitle !== "string") return "Subtitle must be a string";
+  return false;
+};
+
+// Validates introduction
+const validateIntroduction = (introduction) => {
+  if (!introduction) return "Introduction is missing";
+  if (typeof introduction !== "string") return "Introduction must be a string";
+  return false;
+};
+
+// Validates body
+const validateBody = (body) => {
+  if (!body) return "Body is missing";
+  if (typeof body !== "string") return "Body must be a string";
+  return false;
 };
 
 /******************************* */
@@ -304,8 +313,11 @@ module.exports = {
   validatePassword,
   validatePasswordConfirmation,
   validateVideoFileType,
-  ensureAuthenticatedAdmin,
   validateImageSize,
   validateName,
   validateLastname,
+  validateTitle,
+  validateSubtitle,
+  validateIntroduction,
+  validateBody,
 };
