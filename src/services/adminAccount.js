@@ -1,10 +1,12 @@
 const AdminAccount = require("../models/AdminAccount");
 const Section = require("../models/Section");
 const Article = require("../models/Article");
+const UsersAccount = require("../models/UsersAccount");
 
 const { Op } = require("sequelize");
 
 const writerAccountServices = require("../services/writerAccount");
+const usersAccountServices = require("../services/usersAccount");
 
 // Create admin account
 const createAccount = async (hash, email) => {
@@ -205,6 +207,56 @@ const updateArticleIsShown = async (id, shown) => {
   }
 };
 
+// Update account
+const updateAccount = async (id, banned) => {
+  try {
+    const accountFound = await usersAccountServices.getAccountById(id);
+
+    if (!accountFound) {
+      return null;
+    }
+
+    if (banned === "true") {
+      const updatedAccount = await UsersAccount.update(
+        {
+          isBanned: true,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedAccount[0] === 1) {
+        const updatedAccount = await usersAccountServices.getAccountById(id);
+
+        return updatedAccount;
+      }
+    } else {
+      const updatedAccount = await UsersAccount.update(
+        {
+          isBanned: false,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedAccount[0] === 1) {
+        const updatedAccount = await usersAccountServices.getAccountById(id);
+
+        return updatedAccount;
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update the account!");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -214,4 +266,5 @@ module.exports = {
   getSectionById,
   updateArticleForSubscribers,
   updateArticleIsShown,
+  updateAccount,
 };
