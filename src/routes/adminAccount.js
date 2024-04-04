@@ -37,5 +37,11 @@ router.put(
   authController.ensureAuthenticatedAdmin,
   adminAccountController.updateUserAccount
 );
+// Update writer account
+router.put(
+  "/writer/:id",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.updateWriterAccount
+);
 
 module.exports = router;
