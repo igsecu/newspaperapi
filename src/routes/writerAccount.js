@@ -19,6 +19,16 @@ router.post(
 );
 // Login process
 router.post("/login", writerAccountController.login);
+// Update article image
+router.put(
+  "/article/:id/image",
+  fileUpload({
+    useTempFiles: true,
+    tempFileDir: `${__dirname}/../../uploads`,
+  }),
+  authController.ensureAuthenticatedWriter,
+  writerAccountController.updateArticleImage
+);
 // Update profile image
 router.put(
   "/account/image",
