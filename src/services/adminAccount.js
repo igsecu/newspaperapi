@@ -1,4 +1,7 @@
 const AdminAccount = require("../models/AdminAccount");
+const Section = require("../models/Section");
+
+const { Op } = require("sequelize");
 
 // Create admin account
 const createAccount = async (hash, email) => {
@@ -49,8 +52,40 @@ const checkEmailExist = async (email) => {
   }
 };
 
+// Check if section exists
+const checkSectionExist = async (name) => {
+  try {
+    const sectionFound = await Section.findOne({
+      where: {
+        name: {
+          [Op.iLike]: `${name}`,
+        },
+      },
+    });
+
+    return sectionFound;
+  } catch (error) {
+    throw new Error("Error trying to check if section exists");
+  }
+};
+
+// Create section
+const createSection = async (name) => {
+  try {
+    const sectionCreated = await Section.create({
+      name: `${name[0].toUpperCase()}${name.slice(1).toLowerCase()}`,
+    });
+
+    return sectionCreated;
+  } catch (error) {
+    throw new Error("Error trying to create a new section");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
   checkEmailExist,
+  checkSectionExist,
+  createSection,
 };
