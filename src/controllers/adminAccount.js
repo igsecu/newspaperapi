@@ -6,6 +6,7 @@ const {
   validateEmail,
   validatePasswordConfirmation,
   validateId,
+  validateName,
 } = require("../utils/index");
 
 const adminAccountServices = require("../services/adminAccount");
@@ -221,9 +222,48 @@ const createWriter = async (req, res, next) => {
   }
 };
 
+// Create section
+const createSection = async (req, res, next) => {
+  const { name } = req.body;
+
+  if (validateName(name)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: validateName(name),
+    });
+  }
+
+  try {
+    const sectionFound = await adminAccountServices.checkSectionExist(name);
+
+    if (sectionFound) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: `Section ${name} exists! Try with another name...`,
+      });
+    }
+
+    const sectionCreated = await adminAccountServices.createSection(name);
+
+    if (sectionCreated) {
+      return res.status(201).json({
+        statusCode: 201,
+        data: {
+          id: sectionCreated.id,
+          name: sectionCreated.name,
+        },
+        msg: "Section created successfully!",
+      });
+    }
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
   getLoggedInAccount,
   createWriter,
+  createSection,
 };
