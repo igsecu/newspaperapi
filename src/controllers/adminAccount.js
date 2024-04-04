@@ -355,6 +355,59 @@ const updateArticle = async (req, res, next) => {
   }
 };
 
+// Update user account
+const updateUserAccount = async (req, res, next) => {
+  const { id } = req.params;
+  const { banned } = req.query;
+
+  if (!validateId(id)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: `ID: ${id} - Invalid format!`,
+    });
+  }
+
+  try {
+    let updatedAccount;
+
+    if (banned) {
+      if (validateBanned(banned)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: validateBanned(banned),
+        });
+      }
+
+      updatedAccount = await adminAccountServices.updateAccount(
+        id,
+        banned.toLowerCase()
+      );
+    }
+
+    if (!banned) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "Query parameter is missing",
+      });
+    }
+
+    if (!updatedAccount) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Account with ID: ${id} not found!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      msg: `Account updated successfully!`,
+      data: updatedAccount,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -362,4 +415,5 @@ module.exports = {
   createWriter,
   createSection,
   updateArticle,
+  updateUserAccount,
 };
