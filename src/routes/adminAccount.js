@@ -31,5 +31,11 @@ router.put(
   authController.ensureAuthenticatedAdmin,
   adminAccountController.updateArticle
 );
+// Update account
+router.put(
+  "/user/:id",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.updateUserAccount
+);
 
 module.exports = router;
