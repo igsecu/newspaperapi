@@ -436,3 +436,72 @@ describe("POST /api/writers/article route -> create new article", () => {
     expect(response.body.msg).toBe("You successfully logged out!");
   });
 });
+
+describe("PUT /api/writers/article/:id/image route -> update article image", () => {
+  it("it should return 401 status code -> not authorized", async () => {
+    const response = await request(app).put("/api/writers/article/1/image");
+    expect(response.status).toBe(401);
+    expect(response.body.msg).toBe("You are not authorized! Please login...");
+  });
+  it("it should return a 200 status code -> user logged in", async () => {
+    const user = {
+      email: "writer1@newspaper.io",
+      password: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/writers/login").send(user);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You logged in successfully");
+    cookie = response.headers["set-cookie"];
+  });
+  it("it should return 400 status code -> id invalid format", async () => {
+    const response = await request(app)
+      .put("/api/writers/article/1/image")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("ID: 1 - Invalid format!");
+  });
+  it("it should return 404 status code -> article not found", async () => {
+    const response = await request(app)
+      .put("/api/writers/article/8b0f595a-9e6f-4fa8-9df7-ef67165dbed4/image")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe(
+      "Article with ID: 8b0f595a-9e6f-4fa8-9df7-ef67165dbed4 not found!"
+    );
+  });
+  it("it should return 400 status code -> image file is missing", async () => {
+    const response = await request(app)
+      .put(`/api/writers/article/${article1_id}/image`)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Image file is missing!");
+  });
+  it("it should return 400 status code -> file type not allowed", async () => {
+    const response = await request(app)
+      .put(`/api/writers/article/${article1_id}/image`)
+      .attach("image", `${__dirname}/files/file.txt`)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe(
+      "File format not allowed! Only JPG or PNG..."
+    );
+  });
+  /*  it("it should return 200 status code -> article image updated successfully", async () => {
+    const response = await request(app)
+      .put(`/api/writers/article/${article1_id}/image`)
+      .attach("image", `${__dirname}/files/post1.png`)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe(
+      "Your article image was updated successfully!"
+    );
+  }); */
+  it("it should return a 200 status code -> logout process", async () => {
+    const response = await request(app)
+      .get("/api/writers/logout")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You successfully logged out!");
+  });
+});
