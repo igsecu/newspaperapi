@@ -82,10 +82,31 @@ const createSection = async (name) => {
   }
 };
 
+// Get section by id
+const getSectionById = async (id) => {
+  try {
+    const sectionFound = await Section.findByPk(id, {
+      attributes: ["id", "name"],
+    });
+
+    if (sectionFound) {
+      return {
+        id: sectionFound.id,
+        name: sectionFound.name,
+      };
+    }
+
+    return sectionFound;
+  } catch (error) {
+    throw new Error("Error trying to get a section by its id");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
   checkEmailExist,
   checkSectionExist,
   createSection,
+  getSectionById,
 };
