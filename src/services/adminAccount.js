@@ -1,7 +1,10 @@
 const AdminAccount = require("../models/AdminAccount");
 const Section = require("../models/Section");
+const Article = require("../models/Article");
 
 const { Op } = require("sequelize");
+
+const writerAccountServices = require("../services/writerAccount");
 
 // Create admin account
 const createAccount = async (hash, email) => {
@@ -102,6 +105,106 @@ const getSectionById = async (id) => {
   }
 };
 
+// For subscribers or not
+const updateArticleForSubscribers = async (id, subscribers) => {
+  try {
+    const articleFound = await writerAccountServices.getArticleById(id);
+
+    if (!articleFound) {
+      return null;
+    }
+
+    if (subscribers === "true") {
+      const updatedArticle = await Article.update(
+        {
+          forSubscribers: true,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedArticle[0] === 1) {
+        const updatedArticle = await writerAccountServices.getArticleById(id);
+
+        return updatedArticle;
+      }
+    } else {
+      const updatedArticle = await Article.update(
+        {
+          forSubscribers: false,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedArticle[0] === 1) {
+        const updatedArticle = await writerAccountServices.getArticleById(id);
+
+        return updatedArticle;
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update the article!");
+  }
+};
+
+// show or not article
+const updateArticleIsShown = async (id, shown) => {
+  try {
+    const articleFound = await writerAccountServices.getArticleById(id);
+
+    if (!articleFound) {
+      return null;
+    }
+
+    if (shown === "true") {
+      const updatedArticle = await Article.update(
+        {
+          isShown: true,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedArticle[0] === 1) {
+        const articleFound = await writerAccountServices.getArticleById(id);
+
+        return articleFound;
+      }
+    } else {
+      const updatedArticle = await Article.update(
+        {
+          isShown: false,
+        },
+        {
+          where: {
+            id,
+          },
+        }
+      );
+
+      if (updatedArticle[0] === 1) {
+        const articleFound = await writerAccountServices.getArticleById(id);
+
+        return articleFound;
+      }
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update an article!");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -109,4 +212,6 @@ module.exports = {
   checkSectionExist,
   createSection,
   getSectionById,
+  updateArticleForSubscribers,
+  updateArticleIsShown,
 };
