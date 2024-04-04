@@ -19,6 +19,8 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Authenticate with email and password</li>
 <li>Upload and delete profile images using Cloudinary</li>
 <li>Authenticate with email and password</li>
+<li>Create articles</li>
+<li>Upload articles photos - Cloudinary</li>
 </ul>
 
 #### Admin
@@ -27,6 +29,9 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Create admin accounts</li>
 <li>Create writers accounts</li>
 <li>Authenticate using Passport local strategy</li>
+<li>Update articles - are shown - are for subscribers</li>
+<li>Ban or not users accounts</li>
+<li>Ban or not writers accounts</li>
 </ul>
 
 #### More
