@@ -11,6 +11,12 @@ const fileUpload = require("express-fileupload");
 router.get("/logout", logoutController.logout);
 // Get logged in account
 router.get("/account", writerAccountController.getLoggedInAccount);
+// Create Article
+router.post(
+  "/article",
+  authController.ensureAuthenticatedWriter,
+  writerAccountController.createArticle
+);
 // Login process
 router.post("/login", writerAccountController.login);
 // Update profile image
