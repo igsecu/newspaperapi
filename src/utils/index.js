@@ -170,6 +170,30 @@ const validateBody = (body) => {
   return false;
 };
 
+// Validate subscribers
+const validateSubscribers = (subscribers) => {
+  if (
+    subscribers.toLowerCase() !== "true" &&
+    subscribers.toLowerCase() !== "false"
+  )
+    return "Subscribers query value must be true or false";
+  return false;
+};
+
+// Validate shown
+const validateIsShown = (shown) => {
+  if (shown.toLowerCase() !== "true" && shown.toLowerCase() !== "false")
+    return "Shown query value must be true or false";
+  return false;
+};
+
+// Validate banned
+const validateBanned = (banned) => {
+  if (banned.toLowerCase() !== "true" && banned.toLowerCase() !== "false")
+    return "Banned query value must be true or false";
+  return false;
+};
+
 /******************************* */
 
 const hasCapitalLetter = (password) => {
@@ -320,4 +344,7 @@ module.exports = {
   validateSubtitle,
   validateIntroduction,
   validateBody,
+  validateSubscribers,
+  validateIsShown,
+  validateBanned,
 };
