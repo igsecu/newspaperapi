@@ -1,13 +1,15 @@
 const WriterAccount = require("../models/WriterAccount");
+const Section = require("../models/Section");
 
 const { deleteImage } = require("../utils/cloudinary");
 
 // Create admin account
-const createAccount = async (hash, email) => {
+const createAccount = async (hash, email, sectionId) => {
   try {
     const accountCreated = await WriterAccount.create({
       password: hash,
       email: email.toLowerCase(),
+      sectionId,
     });
 
     return accountCreated;
@@ -21,6 +23,10 @@ const getAccountById = async (id) => {
   try {
     const account = await WriterAccount.findByPk(id, {
       attributes: ["id", "email", "isBanned", "image"],
+      include: {
+        model: Section,
+        attributes: ["id", "name"],
+      },
     });
 
     if (account) {
@@ -29,6 +35,10 @@ const getAccountById = async (id) => {
         email: account.email,
         image: account.image,
         isBanned: account.isBanned,
+        section: {
+          id: account.section.id,
+          name: account.section.name,
+        },
       };
     }
 
