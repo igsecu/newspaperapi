@@ -4,12 +4,14 @@ const db = require("../src/database/db");
 
 const AdminAccount = require("../src/models/AdminAccount");
 const WriterAccount = require("../src/models/WriterAccount");
+const Section = require("../src/models/Section");
 
 beforeAll(async () => {
   try {
     await db.sync({});
     await AdminAccount.sync({ force: true });
     await WriterAccount.sync({ force: true });
+    await Section.sync({ force: true });
   } catch (error) {
     console.log(error.message);
   }
@@ -364,6 +366,93 @@ describe("POST /api/login route -> login process", () => {
   });
 });
 
+let section1_id, section2_id;
+
+describe("POST /api/admin/section route -> create new section", () => {
+  it("it should return 401 status code -> not authorized", async () => {
+    const response = await request(app).post("/api/admin/section");
+    expect(response.status).toBe(401);
+    expect(response.body.msg).toBe("You are not authorized! Please login...");
+  });
+  it("it should return a 200 status code -> user logged in", async () => {
+    const user = {
+      email: "admin@newspaper.io",
+      password: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/admin/login").send(user);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You logged in successfully");
+    cookie = response.headers["set-cookie"];
+  });
+  it("it should return 400 status code -> name parameter is missing", async () => {
+    const section = {};
+    const response = await request(app)
+      .post("/api/admin/section")
+      .send(section)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Name is missing");
+  });
+  it("it should return 400 status code -> name must be a string", async () => {
+    const section = {
+      name: true,
+    };
+    const response = await request(app)
+      .post("/api/admin/section")
+      .send(section)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("Name must be a string");
+  });
+  it("it should return 201 status code -> section created success", async () => {
+    const section = {
+      name: "Section 1",
+    };
+    const response = await request(app)
+      .post("/api/admin/section")
+      .send(section)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(201);
+    expect(response.body.msg).toBe("Section created successfully!");
+    expect(response.body.data.name).toBe("Section 1");
+    section1_id = response.body.data.id;
+  });
+  it("it should return 400 status code -> section exists", async () => {
+    const section = {
+      name: "section 1",
+    };
+    const response = await request(app)
+      .post("/api/admin/section")
+      .send(section)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe(
+      "Section section 1 exists! Try with another name..."
+    );
+  });
+  it("it should return 201 status code -> section created success", async () => {
+    const section = {
+      name: "sECTION 2",
+    };
+    const response = await request(app)
+      .post("/api/admin/section")
+      .send(section)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(201);
+    expect(response.body.msg).toBe("Section created successfully!");
+    expect(response.body.data.name).toBe("Section 2");
+    section2_id = response.body.data.id;
+  });
+  it("it should return a 200 status code -> logout process", async () => {
+    const response = await request(app)
+      .get("/api/admin/logout")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You successfully logged out!");
+  });
+});
+
 describe("POST /api/admin/writer/account route -> create new writer account", () => {
   it("it should return 401 status code -> not authorized", async () => {
     const response = await request(app).post("/api/admin/writer/account");
@@ -577,11 +666,58 @@ describe("POST /api/admin/writer/account route -> create new writer account", ()
       "Password and Password Confirmation not match"
     );
   });
+  it("it should return a 400 status code -> sectionId is missing", async () => {
+    const user = {
+      email: "user1@email.com",
+      password: "Password14!",
+      password2: "Password14!",
+    };
+
+    const response = await request(app)
+      .post("/api/admin/writer/account")
+      .send(user)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("sectionId is missing");
+  });
+  it("it should return a 400 status code -> sectionId invalid format", async () => {
+    const user = {
+      email: "user1@email.com",
+      password: "Password14!",
+      password2: "Password14!",
+      sectionId: 1,
+    };
+
+    const response = await request(app)
+      .post("/api/admin/writer/account")
+      .send(user)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("sectionId: 1 - Invalid format!");
+  });
+  it("it should return a 404 status code -> section not found", async () => {
+    const user = {
+      email: "user1@email.com",
+      password: "Password14!",
+      password2: "Password14!",
+      sectionId: "41343c71-c8c6-4614-96fb-ef8cfb8ea725",
+    };
+
+    const response = await request(app)
+      .post("/api/admin/writer/account")
+      .send(user)
+      .set("Cookie", cookie);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe(
+      "Section with ID: 41343c71-c8c6-4614-96fb-ef8cfb8ea725 not found!"
+    );
+  });
   it("it should return 201 status code -> create new account successfully", async () => {
     const user = {
       email: "writer1@newspaper.io",
       password: "F4k3ap1s.io",
       password2: "F4k3ap1s.io",
+      sectionId: section1_id,
     };
 
     const response = await request(app)
