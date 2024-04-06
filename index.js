@@ -12,6 +12,10 @@ const Notification = require("./src/models/Notification");
 const Section = require("./src/models/Section");
 const WriterAccount = require("./src/models/WriterAccount");
 const Article = require("./src/models/Article");
+const Subscriber = require("./src/models/Subscriber");
+
+UsersAccount.hasOne(Subscriber);
+Subscriber.belongsTo(UsersAccount);
 
 UsersAccount.hasMany(Notification);
 Notification.belongsTo(UsersAccount);
