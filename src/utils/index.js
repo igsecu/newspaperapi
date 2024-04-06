@@ -194,6 +194,29 @@ const validateBanned = (banned) => {
   return false;
 };
 
+// Add one month to date
+const oneMonthFromNow = () => {
+  // Get the current date
+  const currentDate = new Date();
+
+  // Get the month of the current date
+  let nextMonth = currentDate.getMonth() + 1;
+
+  // Get the year of the current date
+  let year = currentDate.getFullYear();
+
+  // If the next month exceeds December, increment the year and reset the month to January
+  if (nextMonth > 11) {
+    nextMonth = 0; // January
+    year++;
+  }
+
+  // Create a new Date object for one month from now
+  const oneMonthFromNow = new Date(year, nextMonth, currentDate.getDate());
+
+  return oneMonthFromNow;
+};
+
 /******************************* */
 
 const hasCapitalLetter = (password) => {
@@ -347,4 +370,5 @@ module.exports = {
   validateSubscribers,
   validateIsShown,
   validateBanned,
+  oneMonthFromNow,
 };
