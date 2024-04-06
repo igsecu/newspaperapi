@@ -36,6 +36,10 @@ const getAccountById = async (id) => {
   try {
     const account = await Account.findByPk(id, {
       attributes: ["id", "email", "isBanned", "isVerified"],
+      include: {
+        model: Subscriber,
+        attributes: ["id", "isActive"],
+      },
     });
 
     if (account) {
@@ -44,6 +48,10 @@ const getAccountById = async (id) => {
         email: account.email,
         isBanned: account.isBanned,
         isVerified: account.isVerified,
+        subscriber: {
+          id: account.subscriber.id,
+          isActive: account.subscriber.isActive,
+        },
       };
     }
 
