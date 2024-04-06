@@ -497,6 +497,70 @@ const createPaypalProduct = async (req, res, next) => {
   );
 };
 
+// Create Paypal Plan
+const createPaypalPlan = async (req, res, next) => {
+  const { productId } = req.body;
+
+  const plan = {
+    name: "Monthly Subscription",
+    product_id: productId,
+    status: "ACTIVE",
+    billing_cycles: [
+      {
+        frequency: {
+          interval_unit: "MONTH",
+          interval_count: 1,
+        },
+        tenure_type: "REGULAR",
+        sequence: 1,
+        total_cycles: 12,
+        pricing_scheme: {
+          fixed_price: {
+            value: "3",
+            currency_code: "USD",
+          },
+        },
+      },
+    ],
+    payment_preferences: {
+      auto_bill_outstanding: true,
+      setup_fee: {
+        value: "0",
+        currency_code: "USD",
+      },
+      setup_fee_failure_action: "CONTINUE",
+      payment_failure_threshold: 3,
+    },
+    taxes: {
+      percentage: "0",
+      inclusive: false,
+    },
+  };
+
+  request.post(
+    `${process.env.PAYPAL_API}/v1/billing/plans`,
+    {
+      auth: {
+        user: process.env.PAYPAL_CLIENT_ID,
+        pass: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      body: plan,
+      json: true,
+    },
+    (err, response) => {
+      if (err) {
+        return next("Error trying to create a new paypal plan");
+      }
+
+      return res.status(200).json({
+        statusCode: 200,
+        msg: "Paypal Plan created successfully!",
+        data: response.body,
+      });
+    }
+  );
+};
+
 module.exports = {
   createAccount,
   login,
@@ -507,4 +571,5 @@ module.exports = {
   updateUserAccount,
   updateWriterAccount,
   createPaypalProduct,
+  createPaypalPlan,
 };
