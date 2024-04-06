@@ -15,6 +15,12 @@ router.get("/account/:id/verify", usersAccountsController.verifyAccount);
 router.get("/logout", logoutController.logout);
 // Get logged in account
 router.get("/account", usersAccountsController.getLoggedInAccount);
+// Cancel subscription
+router.post(
+  "/cancel-subscription",
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.cancelSubscription
+);
 // Create subscription
 router.post(
   "/create-subscription",
