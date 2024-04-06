@@ -513,7 +513,7 @@ const createPaypalPlan = async (req, res, next) => {
         },
         tenure_type: "REGULAR",
         sequence: 1,
-        total_cycles: 12,
+        total_cycles: 0,
         pricing_scheme: {
           fixed_price: {
             value: "3",
@@ -525,7 +525,7 @@ const createPaypalPlan = async (req, res, next) => {
     payment_preferences: {
       auto_bill_outstanding: true,
       setup_fee: {
-        value: "0",
+        value: "3",
         currency_code: "USD",
       },
       setup_fee_failure_action: "CONTINUE",
