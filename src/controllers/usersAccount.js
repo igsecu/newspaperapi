@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
+const request = require("request");
 
 const {
   validatePassword,
@@ -11,6 +12,17 @@ const {
 const usersAccountsServices = require("../services/usersAccount");
 const notificationsServices = require("../services/notifications");
 const emailsServices = require("../services/emails");
+
+require("dotenv").config();
+
+const paypal = require("paypal-rest-sdk");
+const { router } = require("../..");
+// Configure Paypal
+paypal.configure({
+  mode: "sandbox", // Change to 'live' for production
+  client_id: process.env.PAYPAL_CLIENT_ID,
+  client_secret: process.env.PAYPAL_CLIENT_SECRET,
+});
 
 // Get logged in account
 const getLoggedInAccount = async (req, res, next) => {
@@ -237,10 +249,105 @@ const verifyAccount = async (req, res, next) => {
   }
 };
 
+// Create subscription
+const createSubscription = async (req, res, next) => {
+  const { planId } = req.body;
+
+  const subscription = {
+    plan_id: planId,
+    start_time: oneMonthFromNow(),
+    quantity: 1,
+    subscriber: {
+      email: req.user.email,
+    },
+    application_context: {
+      brand_name: "Newspaper",
+      locale: "en-US",
+      shipping_preference: "SET_PROVIDED_ADDRESS",
+      user_action: "SUBSCRIBE_NOW",
+      payment_method: {
+        payer_selected: "PAYPAL",
+        payee_preferred: "IMMEDIATE_PAYMENT_REQUIRED",
+      },
+      return_url: `${process.env.URL}/api/users/payment/success`,
+      cancel_url: `${process.env.URL}/api/users/payment/cancel`,
+    },
+  };
+
+  request.post(
+    `${process.env.PAYPAL_API}/v1/billing/subscriptions`,
+    {
+      auth: {
+        user: process.env.PAYPAL_CLIENT_ID,
+        pass: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      body: subscription,
+      json: true,
+    },
+    (err, response) => {
+      if (err) {
+        return next("Error trying to create a new subscription");
+      }
+
+      for (link of response.body.links) {
+        if (link.rel === "approve") {
+          res.status(200).json({
+            statusCode: 200,
+            data: link.href,
+          });
+        }
+      }
+    }
+  );
+};
+
+// Payment Success
+const paymentSuccess = (req, res, next) => {
+  const { subscription_id } = req.query;
+  console.log(subscription_id);
+  res.status(200).json({
+    statusCode: 200,
+    msg: "You have subscribed successfully!",
+  });
+};
+
+// Payment Cancel
+const paymentCancel = (req, res, next) => {
+  res.status(400).json({
+    statusCode: 400,
+    msg: "Your payment have been cancelled!",
+  });
+};
+
+const oneMonthFromNow = () => {
+  // Get the current date
+  const currentDate = new Date();
+
+  // Get the month of the current date
+  let nextMonth = currentDate.getMonth() + 1;
+
+  // Get the year of the current date
+  let year = currentDate.getFullYear();
+
+  // If the next month exceeds December, increment the year and reset the month to January
+  if (nextMonth > 11) {
+    nextMonth = 0; // January
+    year++;
+  }
+
+  // Create a new Date object for one month from now
+  const oneMonthFromNow = new Date(year, nextMonth, currentDate.getDate());
+
+  return oneMonthFromNow;
+};
+
 module.exports = {
   createAccount,
   login,
   getLoggedInAccount,
   deleteAccount,
   verifyAccount,
+  createSubscription,
+  paymentSuccess,
+  paymentCancel,
 };
