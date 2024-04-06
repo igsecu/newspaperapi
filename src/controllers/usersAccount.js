@@ -144,6 +144,8 @@ const createAccount = async (req, res, next) => {
           );
 
           if (accountCreated) {
+            await usersAccountsServices.createSubscriber(accountCreated.id);
+
             const account = await usersAccountsServices.getAccountById(
               accountCreated.id
             );
