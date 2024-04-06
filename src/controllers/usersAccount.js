@@ -319,6 +319,36 @@ const paymentCancel = (req, res, next) => {
   });
 };
 
+// Cancel subscription
+const cancelSubscription = async (req, res, next) => {
+  const { subscription_id } = req.body;
+
+  request.post(
+    `${process.env.PAYPAL_API}/v1/billing/subscriptions/${subscription_id}/cancel`,
+    {
+      auth: {
+        user: process.env.PAYPAL_CLIENT_ID,
+        pass: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      body: {
+        reason: "Not satisfied with the service",
+      },
+      json: true,
+    },
+    (err, response) => {
+      if (err) {
+        return next("Error trying to cancel subscription");
+      }
+
+      res.status(200).json({
+        statusCode: 200,
+        msg: "Subscription Cancelled!",
+        data: response,
+      });
+    }
+  );
+};
+
 const oneMonthFromNow = () => {
   // Get the current date
   const currentDate = new Date();
@@ -350,4 +380,5 @@ module.exports = {
   createSubscription,
   paymentSuccess,
   paymentCancel,
+  cancelSubscription,
 };
