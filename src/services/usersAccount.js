@@ -143,6 +143,32 @@ const updateSubscriber = async (id, subscriptionId, userId) => {
   }
 };
 
+// Cancel Subscription
+const cancelSubscription = async (id, userId) => {
+  try {
+    const subscriberUpdated = await Subscriber.update(
+      {
+        isActive: false,
+        subscriptionId: "",
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (subscriberUpdated[0] === 1) {
+      const account = await getAccountById(userId);
+
+      return account;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to cancel subscription!");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -151,4 +177,5 @@ module.exports = {
   updateIsVerifiedAccount,
   createSubscriber,
   updateSubscriber,
+  cancelSubscription,
 };
