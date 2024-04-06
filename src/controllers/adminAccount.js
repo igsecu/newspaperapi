@@ -1,5 +1,6 @@
 const bcrypt = require("bcryptjs");
 const passport = require("passport");
+const request = require("request");
 
 const {
   validatePassword,
@@ -14,6 +15,8 @@ const {
 
 const adminAccountServices = require("../services/adminAccount");
 const writerAccountServices = require("../services/writerAccount");
+
+require("dotenv").config();
 
 // Create admin account
 const createAccount = async (req, res, next) => {
@@ -461,6 +464,39 @@ const updateWriterAccount = async (req, res, next) => {
   }
 };
 
+// Create Paypal Product
+const createPaypalProduct = async (req, res, next) => {
+  const product = {
+    name: "Newspaper Subscription",
+    description: "Monthly subscription to Newspaper app",
+    type: "SERVICE",
+    category: "SERVICES",
+  };
+
+  request.post(
+    `${process.env.PAYPAL_API}/v1/catalogs/products`,
+    {
+      auth: {
+        user: process.env.PAYPAL_CLIENT_ID,
+        pass: process.env.PAYPAL_CLIENT_SECRET,
+      },
+      body: product,
+      json: true,
+    },
+    (err, response) => {
+      if (err) {
+        return next("Error trying to create a new product in Paypal");
+      }
+
+      res.status(200).json({
+        statusCode: 200,
+        msg: "Paypal product created successfully!",
+        data: response.body,
+      });
+    }
+  );
+};
+
 module.exports = {
   createAccount,
   login,
@@ -470,4 +506,5 @@ module.exports = {
   updateArticle,
   updateUserAccount,
   updateWriterAccount,
+  createPaypalProduct,
 };
