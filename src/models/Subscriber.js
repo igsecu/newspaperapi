@@ -13,6 +13,10 @@ const Subscriber = db.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    subscriptionId: {
+      type: DataTypes.STRING,
+      defaultValue: "",
+    },
   },
   {
     timestamps: true,
