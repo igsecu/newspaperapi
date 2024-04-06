@@ -499,11 +499,9 @@ const createPaypalProduct = async (req, res, next) => {
 
 // Create Paypal Plan
 const createPaypalPlan = async (req, res, next) => {
-  const { productId } = req.body;
-
   const plan = {
     name: "Monthly Subscription",
-    product_id: productId,
+    product_id: process.env.PAYPAL_PRODUCT_ID,
     status: "ACTIVE",
     billing_cycles: [
       {
