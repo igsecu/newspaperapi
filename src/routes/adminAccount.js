@@ -9,6 +9,13 @@ const authController = require("../controllers/auth");
 router.get("/logout", logoutController.logout);
 // Get logged in account
 router.get("/account", adminAccountController.getLoggedInAccount);
+
+// Create Paypal Product
+router.post(
+  "/create-product",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.createPaypalProduct
+);
 // Create section
 router.post(
   "/section",
