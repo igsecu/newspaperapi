@@ -1,4 +1,5 @@
 const Account = require("../models/UsersAccount");
+const Subscriber = require("../models/Subscriber");
 
 // Check if email exists
 const checkEmailExist = async (email) => {
@@ -94,10 +95,24 @@ const updateIsVerifiedAccount = async (id) => {
   }
 };
 
+// Create Subscriber
+const createSubscriber = async (id) => {
+  try {
+    const subscriberCreated = await Subscriber.create({
+      usersAccountId: id,
+    });
+
+    return subscriberCreated;
+  } catch (error) {
+    throw new Error("Error trying to create a subscriber");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
   getAccountById,
   deleteAccount,
   updateIsVerifiedAccount,
+  createSubscriber,
 };
