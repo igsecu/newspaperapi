@@ -7,6 +7,7 @@ const {
   validateEmail,
   validatePasswordConfirmation,
   validateId,
+  oneMonthFromNow,
 } = require("../utils/index");
 
 const usersAccountsServices = require("../services/usersAccount");
@@ -14,15 +15,6 @@ const notificationsServices = require("../services/notifications");
 const emailsServices = require("../services/emails");
 
 require("dotenv").config();
-
-const paypal = require("paypal-rest-sdk");
-const { router } = require("../..");
-// Configure Paypal
-paypal.configure({
-  mode: "sandbox", // Change to 'live' for production
-  client_id: process.env.PAYPAL_CLIENT_ID,
-  client_secret: process.env.PAYPAL_CLIENT_SECRET,
-});
 
 // Get logged in account
 const getLoggedInAccount = async (req, res, next) => {
@@ -253,10 +245,8 @@ const verifyAccount = async (req, res, next) => {
 
 // Create subscription
 const createSubscription = async (req, res, next) => {
-  const { planId } = req.body;
-
   const subscription = {
-    plan_id: planId,
+    plan_id: process.env.PAYPAL_PLAN_ID,
     start_time: oneMonthFromNow(),
     quantity: 1,
     subscriber: {
@@ -304,13 +294,24 @@ const createSubscription = async (req, res, next) => {
 };
 
 // Payment Success
-const paymentSuccess = (req, res, next) => {
+const paymentSuccess = async (req, res, next) => {
   const { subscription_id } = req.query;
-  console.log(subscription_id);
-  res.status(200).json({
-    statusCode: 200,
-    msg: "You have subscribed successfully!",
-  });
+
+  try {
+    const subscriberUpdated = await usersAccountsServices.updateSubscriber(
+      req.user.subscriber.id,
+      subscription_id,
+      req.user.id
+    );
+
+    res.status(200).json({
+      statusCode: 200,
+      msg: "You have subscribed successfully!",
+      data: subscriberUpdated,
+    });
+  } catch (error) {
+    return next(error);
+  }
 };
 
 // Payment Cancel
@@ -349,28 +350,6 @@ const cancelSubscription = async (req, res, next) => {
       });
     }
   );
-};
-
-const oneMonthFromNow = () => {
-  // Get the current date
-  const currentDate = new Date();
-
-  // Get the month of the current date
-  let nextMonth = currentDate.getMonth() + 1;
-
-  // Get the year of the current date
-  let year = currentDate.getFullYear();
-
-  // If the next month exceeds December, increment the year and reset the month to January
-  if (nextMonth > 11) {
-    nextMonth = 0; // January
-    year++;
-  }
-
-  // Create a new Date object for one month from now
-  const oneMonthFromNow = new Date(year, nextMonth, currentDate.getDate());
-
-  return oneMonthFromNow;
 };
 
 module.exports = {
