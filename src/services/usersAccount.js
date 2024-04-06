@@ -38,7 +38,7 @@ const getAccountById = async (id) => {
       attributes: ["id", "email", "isBanned", "isVerified"],
       include: {
         model: Subscriber,
-        attributes: ["id", "isActive"],
+        attributes: ["id", "isActive", "subscriptionId"],
       },
     });
 
@@ -51,6 +51,7 @@ const getAccountById = async (id) => {
         subscriber: {
           id: account.subscriber.id,
           isActive: account.subscriber.isActive,
+          subscriptionId: account.subscriber.subscriptionId,
         },
       };
     }
@@ -116,6 +117,32 @@ const createSubscriber = async (id) => {
   }
 };
 
+// Update Subscriber
+const updateSubscriber = async (id, subscriptionId, userId) => {
+  try {
+    const subscriberUpdated = await Subscriber.update(
+      {
+        isActive: true,
+        subscriptionId,
+      },
+      {
+        where: {
+          id,
+        },
+      }
+    );
+
+    if (subscriberUpdated[0] === 1) {
+      const account = await getAccountById(userId);
+
+      return account;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update subscriber!");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -123,4 +150,5 @@ module.exports = {
   deleteAccount,
   updateIsVerifiedAccount,
   createSubscriber,
+  updateSubscriber,
 };
