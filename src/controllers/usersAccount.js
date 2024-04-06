@@ -324,10 +324,8 @@ const paymentCancel = (req, res, next) => {
 
 // Cancel subscription
 const cancelSubscription = async (req, res, next) => {
-  const { subscription_id } = req.body;
-
   request.post(
-    `${process.env.PAYPAL_API}/v1/billing/subscriptions/${subscription_id}/cancel`,
+    `${process.env.PAYPAL_API}/v1/billing/subscriptions/${req.user.subscriber.subscriptionId}/cancel`,
     {
       auth: {
         user: process.env.PAYPAL_CLIENT_ID,
@@ -338,15 +336,20 @@ const cancelSubscription = async (req, res, next) => {
       },
       json: true,
     },
-    (err, response) => {
+    async (err, response) => {
       if (err) {
         return next("Error trying to cancel subscription");
       }
 
+      const subscriberUpdated = await usersAccountsServices.cancelSubscription(
+        req.user.subscriber.id,
+        req.user.id
+      );
+
       res.status(200).json({
         statusCode: 200,
         msg: "Subscription Cancelled!",
-        data: response,
+        data: subscriberUpdated,
       });
     }
   );
