@@ -180,7 +180,7 @@ describe("POST /api/admin/create-plan route -> create paypal plan", () => {
   });
 }); */
 
-/* describe("POST /api/users/create-subscription -> create subscription", () => {
+describe("POST /api/users/create-subscription -> create subscription", () => {
   it("it should return 401 status code -> not authorized", async () => {
     const response = await request(app).post("/api/users/create-subscription");
     expect(response.status).toBe(401);
@@ -208,7 +208,6 @@ describe("POST /api/admin/create-plan route -> create paypal plan", () => {
       .get("/api/users/payment/success?subscription_id=I-61PCRR119LHU")
       .set("Cookie", cookie);
     expect(response.status).toBe(200);
-    console.log(response.body);
   });
   it("it should return a 200 status code -> logout process", async () => {
     const response = await request(app)
@@ -217,7 +216,7 @@ describe("POST /api/admin/create-plan route -> create paypal plan", () => {
     expect(response.status).toBe(200);
     expect(response.body.msg).toBe("You successfully logged out!");
   });
-}); */
+});
 
 describe("POST /api/users/cancel-subscription -> cancel subscription", () => {
   it("it should return 401 status code -> not authorized", async () => {
@@ -239,9 +238,6 @@ describe("POST /api/users/cancel-subscription -> cancel subscription", () => {
   it("it should return 200 status code -> not authorized", async () => {
     const response = await request(app)
       .post("/api/users/cancel-subscription")
-      .send({
-        subscription_id: "I-RX6041MB678K",
-      })
       .set("Cookie", cookie);
     expect(response.status).toBe(200);
   });
