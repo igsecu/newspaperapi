@@ -304,6 +304,8 @@ const paymentSuccess = async (req, res, next) => {
       req.user.id
     );
 
+    //await emailsServices.sendEmailSubscription(req.user.email);
+
     res.status(200).json({
       statusCode: 200,
       msg: "You have subscribed successfully!",
