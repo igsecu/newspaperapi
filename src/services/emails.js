@@ -15,6 +15,19 @@ const sendEmailVerification = async (url, email) => {
   await sgMail.send(msg);
 };
 
+// Send email subscription
+const sendEmailSubscription = async (email) => {
+  const msg = {
+    to: email,
+    from: process.env.SENDGRID_SENDER,
+    subject: "Thanks for Subscribing!",
+    html: `<html>You are a new subscriber of our Newspaper! Enjoy it!</html>`,
+  };
+
+  await sgMail.send(msg);
+};
+
 module.exports = {
   sendEmailVerification,
+  sendEmailSubscription,
 };
