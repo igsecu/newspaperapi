@@ -2,7 +2,7 @@
 
 ### Technologies
 
-Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - Supertest - Cloudinary - Sendgrid - Redis
+Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - Supertest - Cloudinary - Sendgrid - Redis - Paypal Payment and Subscription Integration
 
 ### Features
 
@@ -11,6 +11,7 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <ul>
 <li>Create users accounts </li>
 <li>Authenticate with email and password</li>
+<li>Create and Cancel subscription with Paypal</li>
 </ul>
 
 #### Writers
@@ -32,6 +33,8 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Update articles - are shown - are for subscribers</li>
 <li>Ban or not users accounts</li>
 <li>Ban or not writers accounts</li>
+<li>Create products in Paypal</li>
+<li>Create plan products in Paypal</li>
 </ul>
 
 #### More
@@ -44,6 +47,7 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Verify accounts using emails</li>
 <li>Authorized routes for users, writers admins</li>
 <li>Tests using Jest and Supertest</li>
+<li>Paypal Subscription Payment</li>
 </ul>
 
 #### .env file
@@ -72,6 +76,12 @@ GITHUB_CLIENT_SECRET =
 
 SENDGRID_API_KEY =
 SENDGRID_SENDER =
+
+PAYPAL_CLIENT_ID =
+PAYPAL_CLIENT_SECRET =
+PAYPAL_API = https://api-m.sandbox.paypal.com -> for testing - development
+PAYPAL_PRODUCT_ID =
+PAYPAL_PLAN_ID =
 
 URL="http://localhost:PORT" -> for development
 
