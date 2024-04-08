@@ -13,6 +13,7 @@ const {
   validateSubscribers,
   validatePage,
   validateLimit,
+  validateVerified,
 } = require("../utils/index");
 
 const adminAccountServices = require("../services/adminAccount");
@@ -1025,6 +1026,95 @@ const getUsers = async (req, res, next) => {
   }
 };
 
+// Get filtered users
+const getFilteredUsers = async (req, res, next) => {
+  const { banned, subscriber, verified, page, limit } = req.query;
+
+  try {
+    if (page) {
+      if (validatePage(page)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: "Page must be a number",
+        });
+      }
+
+      if (parseInt(page) === 0) {
+        return res.status(404).json({
+          statusCode: 404,
+          msg: `Page ${page} not found!`,
+        });
+      }
+    }
+
+    if (limit) {
+      if (validateLimit(limit)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: "Limit must be a number",
+        });
+      }
+    }
+
+    if (banned) {
+      if (validateBanned(banned)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: validateBanned(banned),
+        });
+      }
+    }
+
+    if (subscriber) {
+      if (validateSubscribers(subscriber)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: validateSubscribers(subscriber),
+        });
+      }
+    }
+
+    if (verified) {
+      if (validateVerified(verified)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: validateVerified(verified),
+        });
+      }
+    }
+
+    const users = await adminAccountServices.getFilteredUsers(
+      page ? page : 1,
+      limit ? limit : 10,
+      banned && banned.toLowerCase(),
+      subscriber && subscriber.toLowerCase(),
+      verified && verified.toLowerCase()
+    );
+
+    if (!users) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: "No users found!",
+      });
+    }
+
+    if (!users.data.length) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      ...users,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -1044,4 +1134,5 @@ module.exports = {
   getShownArticles,
   getArticlesForSubscribers,
   getUsers,
+  getFilteredUsers,
 };
