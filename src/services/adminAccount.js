@@ -2,13 +2,12 @@ const AdminAccount = require("../models/AdminAccount");
 const Section = require("../models/Section");
 const Article = require("../models/Article");
 const UsersAccount = require("../models/UsersAccount");
-const Writer = require("../models/WriterAccount");
+const WriterAccount = require("../models/WriterAccount");
 
 const { Op } = require("sequelize");
 
 const writerAccountServices = require("../services/writerAccount");
 const usersAccountServices = require("../services/usersAccount");
-const WriterAccount = require("../models/WriterAccount");
 
 // Create admin account
 const createAccount = async (hash, email) => {
@@ -473,6 +472,71 @@ const getNotBannedWriters = async (page, limit) => {
   }
 };
 
+// Get Articles
+const getArticles = async (page, limit) => {
+  const results = [];
+  try {
+    const articles = await Article.findAndCountAll({
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      include: {
+        model: WriterAccount,
+        attributes: ["id", "email"],
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (articles.count === 0) {
+      return false;
+    }
+
+    if (articles.rows.length > 0) {
+      articles.rows.forEach((a) => {
+        results.push({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          introduction: a.introduction,
+          body: a.body,
+          photo: a.photo,
+          comments: a.comments,
+          readers: a.readers,
+          forSubscribers: a.forSubscribers,
+          isShown: a.isShown,
+          writer: {
+            id: a.writerAccount.id,
+            email: a.writerAccount.email,
+          },
+        });
+      });
+
+      return {
+        totalResults: articles.count,
+        totalPages: Math.ceil(articles.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get all articles");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -488,4 +552,5 @@ module.exports = {
   getWriters,
   getBannedWriters,
   getNotBannedWriters,
+  getArticles,
 };
