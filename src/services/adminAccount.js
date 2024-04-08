@@ -366,7 +366,7 @@ const getWriters = async (page, limit) => {
       writers.rows.forEach((w) => {
         results.push({
           id: w.id,
-          email: w.name,
+          email: w.email,
           isBanned: w.isBanned,
           image: w.image,
         });
@@ -387,6 +387,92 @@ const getWriters = async (page, limit) => {
   }
 };
 
+// Get Banned Writers
+const getBannedWriters = async (page, limit) => {
+  const results = [];
+  try {
+    const writers = await WriterAccount.findAndCountAll({
+      attributes: ["id", "email", "isBanned", "image"],
+      where: {
+        isBanned: true,
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (writers.count === 0) {
+      return false;
+    }
+
+    if (writers.rows.length > 0) {
+      writers.rows.forEach((w) => {
+        results.push({
+          id: w.id,
+          email: w.email,
+          isBanned: w.isBanned,
+          image: w.image,
+        });
+      });
+
+      return {
+        totalResults: writers.count,
+        totalPages: Math.ceil(writers.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get banned writers");
+  }
+};
+
+// Get Not Banned Writers
+const getNotBannedWriters = async (page, limit) => {
+  const results = [];
+  try {
+    const writers = await WriterAccount.findAndCountAll({
+      attributes: ["id", "email", "isBanned", "image"],
+      where: {
+        isBanned: false,
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (writers.count === 0) {
+      return false;
+    }
+
+    if (writers.rows.length > 0) {
+      writers.rows.forEach((w) => {
+        results.push({
+          id: w.id,
+          email: w.email,
+          isBanned: w.isBanned,
+          image: w.image,
+        });
+      });
+
+      return {
+        totalResults: writers.count,
+        totalPages: Math.ceil(writers.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get not banned writers");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -400,4 +486,6 @@ module.exports = {
   updateWriterAccount,
   getSections,
   getWriters,
+  getBannedWriters,
+  getNotBannedWriters,
 };
