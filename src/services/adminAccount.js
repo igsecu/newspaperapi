@@ -728,6 +728,63 @@ const getUsers = async (page, limit) => {
   }
 };
 
+// Get Filtered Users
+const getFilteredUsers = async (page, limit, banned, subscriber, verified) => {
+  const results = [];
+  try {
+    const users = await UsersAccount.findAndCountAll({
+      attributes: ["id", "email", "isBanned", "isVerified"],
+      include: {
+        model: Subscriber,
+        attributes: ["id", "isActive"],
+        where: {
+          ...(subscriber
+            ? { isActive: subscriber === "true" ? true : false }
+            : {}),
+        },
+      },
+      where: {
+        ...(banned ? { isBanned: banned === "true" ? true : false } : {}),
+        ...(verified ? { isVerified: verified === "true" ? true : false } : {}),
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (users.count === 0) {
+      return false;
+    }
+
+    if (users.rows.length > 0) {
+      users.rows.forEach((a) => {
+        results.push({
+          id: a.id,
+          email: a.email,
+          isBanned: a.isBanned,
+          isVerified: a.isVerified,
+          subscriber: {
+            id: a.subscriber.id,
+            isActive: a.subscriber.isActive,
+          },
+        });
+      });
+
+      return {
+        totalResults: users.count,
+        totalPages: Math.ceil(users.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get filtered users");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -747,4 +804,5 @@ module.exports = {
   getShownArticles,
   getArticlesForSubscribers,
   getUsers,
+  getFilteredUsers,
 };
