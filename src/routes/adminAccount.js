@@ -5,6 +5,12 @@ const adminAccountController = require("../controllers/adminAccount");
 const logoutController = require("../controllers/logout");
 const authController = require("../controllers/auth");
 
+// Get all sections
+router.get(
+  "/sections",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getSections
+);
 // Logout process
 router.get("/logout", logoutController.logout);
 // Get logged in account
