@@ -22,6 +22,7 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Authenticate with email and password</li>
 <li>Create articles</li>
 <li>Upload articles photos - Cloudinary</li>
+<li>Get own articles</li>
 </ul>
 
 #### Admin
@@ -51,6 +52,7 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Authorized routes for users, writers admins</li>
 <li>Tests using Jest and Supertest</li>
 <li>Paypal Subscription Payment</li>
+<li>Set and get routes response from Cache with Redis</li>
 </ul>
 
 #### .env file
