@@ -5,6 +5,12 @@ const adminAccountController = require("../controllers/adminAccount");
 const logoutController = require("../controllers/logout");
 const authController = require("../controllers/auth");
 
+// Get all writers
+router.get(
+  "/writers",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getWriters
+);
 // Get all sections
 router.get(
   "/sections",
