@@ -8,6 +8,7 @@ const { Op } = require("sequelize");
 
 const writerAccountServices = require("../services/writerAccount");
 const usersAccountServices = require("../services/usersAccount");
+const Subscriber = require("../models/Subscriber");
 
 // Create admin account
 const createAccount = async (hash, email) => {
@@ -679,6 +680,54 @@ const getArticlesForSubscribers = async (page, limit) => {
   }
 };
 
+// Get Users
+const getUsers = async (page, limit) => {
+  const results = [];
+  try {
+    const users = await UsersAccount.findAndCountAll({
+      attributes: ["id", "email", "isBanned", "isVerified"],
+      include: {
+        model: Subscriber,
+        attributes: ["id", "isActive"],
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (users.count === 0) {
+      return false;
+    }
+
+    if (users.rows.length > 0) {
+      users.rows.forEach((a) => {
+        results.push({
+          id: a.id,
+          email: a.email,
+          isBanned: a.isBanned,
+          isVerified: a.isVerified,
+          subscriber: {
+            id: a.subscriber.id,
+            isActive: a.subscriber.isActive,
+          },
+        });
+      });
+
+      return {
+        totalResults: users.count,
+        totalPages: Math.ceil(users.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get all users");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -697,4 +746,5 @@ module.exports = {
   getArticles,
   getShownArticles,
   getArticlesForSubscribers,
+  getUsers,
 };
