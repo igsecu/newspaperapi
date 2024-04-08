@@ -308,6 +308,41 @@ const updateWriterAccount = async (id, banned) => {
   }
 };
 
+// Get Sections
+const getSections = async (page, limit) => {
+  const results = [];
+  try {
+    const sections = await Section.findAndCountAll({
+      attributes: ["id", "name"],
+    });
+
+    if (sections.count === 0) {
+      return false;
+    }
+
+    if (sections.rows.length > 0) {
+      sections.rows.forEach((s) => {
+        results.push({
+          id: s.id,
+          name: s.name,
+        });
+      });
+
+      return {
+        totalResults: sections.count,
+        totalPages: Math.ceil(sections.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get all sections");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -319,4 +354,5 @@ module.exports = {
   updateArticleIsShown,
   updateAccount,
   updateWriterAccount,
+  getSections,
 };
