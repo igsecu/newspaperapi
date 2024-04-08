@@ -324,4 +324,5 @@ module.exports = {
   getArticleById,
   updateArticleImage,
   getArticles,
+  getArticleById,
 };
