@@ -2,6 +2,7 @@ const AdminAccount = require("../models/AdminAccount");
 const Section = require("../models/Section");
 const Article = require("../models/Article");
 const UsersAccount = require("../models/UsersAccount");
+const Writer = require("../models/WriterAccount");
 
 const { Op } = require("sequelize");
 
@@ -314,6 +315,9 @@ const getSections = async (page, limit) => {
   try {
     const sections = await Section.findAndCountAll({
       attributes: ["id", "name"],
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
     });
 
     if (sections.count === 0) {
@@ -343,6 +347,46 @@ const getSections = async (page, limit) => {
   }
 };
 
+// Get Writers
+const getWriters = async (page, limit) => {
+  const results = [];
+  try {
+    const writers = await WriterAccount.findAndCountAll({
+      attributes: ["id", "email", "isBanned", "image"],
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (writers.count === 0) {
+      return false;
+    }
+
+    if (writers.rows.length > 0) {
+      writers.rows.forEach((w) => {
+        results.push({
+          id: w.id,
+          email: w.name,
+          isBanned: w.isBanned,
+          image: w.image,
+        });
+      });
+
+      return {
+        totalResults: writers.count,
+        totalPages: Math.ceil(writers.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get all writers");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -355,4 +399,5 @@ module.exports = {
   updateAccount,
   updateWriterAccount,
   getSections,
+  getWriters,
 };
