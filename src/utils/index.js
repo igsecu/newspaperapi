@@ -217,6 +217,22 @@ const oneMonthFromNow = () => {
   return oneMonthFromNow;
 };
 
+// Validates page
+const validatePage = (page) => {
+  if (page !== "0" && !parseInt(page)) {
+    return true;
+  }
+  return false;
+};
+
+// Validates limit
+const validateLimit = (limit) => {
+  if (limit !== "0" && !parseInt(limit)) {
+    return true;
+  }
+  return false;
+};
+
 /******************************* */
 
 const hasCapitalLetter = (password) => {
@@ -371,4 +387,6 @@ module.exports = {
   validateIsShown,
   validateBanned,
   oneMonthFromNow,
+  validatePage,
+  validateLimit,
 };
