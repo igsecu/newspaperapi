@@ -5,6 +5,12 @@ const adminAccountController = require("../controllers/adminAccount");
 const logoutController = require("../controllers/logout");
 const authController = require("../controllers/auth");
 
+// Get users filtered
+router.get(
+  "/users/filter",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getFilteredUsers
+);
 // Get all users
 router.get(
   "/users",
