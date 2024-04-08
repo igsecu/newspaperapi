@@ -967,6 +967,64 @@ const getArticlesForSubscribers = async (req, res, next) => {
   }
 };
 
+// Get Users
+const getUsers = async (req, res, next) => {
+  const { page, limit } = req.query;
+  try {
+    if (page) {
+      if (validatePage(page)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: "Page must be a number",
+        });
+      }
+
+      if (parseInt(page) === 0) {
+        return res.status(404).json({
+          statusCode: 404,
+          msg: `Page ${page} not found!`,
+        });
+      }
+    }
+
+    if (limit) {
+      if (validateLimit(limit)) {
+        return res.status(400).json({
+          statusCode: 400,
+          msg: "Limit must be a number",
+        });
+      }
+    }
+
+    const users = await adminAccountServices.getUsers(
+      page ? page : 1,
+      limit ? limit : 10
+    );
+
+    if (!users) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: "No users saved in DB!",
+      });
+    }
+
+    if (!users.data.length) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      ...users,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -985,4 +1043,5 @@ module.exports = {
   getArticles,
   getShownArticles,
   getArticlesForSubscribers,
+  getUsers,
 };
