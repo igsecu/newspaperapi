@@ -35,6 +35,9 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Ban or not writers accounts</li>
 <li>Create products in Paypal</li>
 <li>Create plan products in Paypal</li>
+<li>Get all sections</li>
+<li>Get all, banned and not writers</li>
+<li>Get all, shown and for subscribers articles</li>
 </ul>
 
 #### More
