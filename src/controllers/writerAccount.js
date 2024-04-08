@@ -373,6 +373,44 @@ const getArticles = async (req, res, next) => {
   }
 };
 
+// Get Article by id
+const getArticleById = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    if (!validateId(id)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: `ID: ${id} - Invalid format!`,
+      });
+    }
+
+    const article = await writerAccountServices.getArticleById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Article with ID: ${id} not found!`,
+      });
+    }
+
+    if (article.writer.id !== req.user.id) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "You can not access to an article that is not yours!",
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 400,
+      data: article,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   getLoggedInAccount,
   login,
@@ -381,4 +419,5 @@ module.exports = {
   createArticle,
   updateArticleImage,
   getArticles,
+  getArticleById,
 };
