@@ -5,6 +5,18 @@ const adminAccountController = require("../controllers/adminAccount");
 const logoutController = require("../controllers/logout");
 const authController = require("../controllers/auth");
 
+// Get not banned writers
+router.get(
+  "/writers/banned/false",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getNotBannedWriters
+);
+// Get banned writers
+router.get(
+  "/writers/banned/true",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getBannedWriters
+);
 // Get all writers
 router.get(
   "/writers",
