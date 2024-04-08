@@ -17,6 +17,13 @@ router.get(
   authController.ensureAuthenticatedAdmin,
   adminAccountController.getBannedWriters
 );
+
+// Get all articles
+router.get(
+  "/articles",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getArticles
+);
 // Get all writers
 router.get(
   "/writers",
