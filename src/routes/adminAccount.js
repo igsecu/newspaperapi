@@ -5,6 +5,24 @@ const adminAccountController = require("../controllers/adminAccount");
 const logoutController = require("../controllers/logout");
 const authController = require("../controllers/auth");
 
+// Get articles for subscribers
+router.get(
+  "/articles/subscribers/true",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getArticlesForSubscribers
+);
+// Get shown articles
+router.get(
+  "/articles/shown/true",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getShownArticles
+);
+// Get all articles
+router.get(
+  "/articles",
+  authController.ensureAuthenticatedAdmin,
+  adminAccountController.getArticles
+);
 // Get not banned writers
 router.get(
   "/writers/banned/false",
@@ -16,13 +34,6 @@ router.get(
   "/writers/banned/true",
   authController.ensureAuthenticatedAdmin,
   adminAccountController.getBannedWriters
-);
-
-// Get all articles
-router.get(
-  "/articles",
-  authController.ensureAuthenticatedAdmin,
-  adminAccountController.getArticles
 );
 // Get all writers
 router.get(
