@@ -7,6 +7,12 @@ const authController = require("../controllers/auth");
 
 const fileUpload = require("express-fileupload");
 
+// Get article by id
+router.get(
+  "/article/:id",
+  authController.ensureAuthenticatedWriter,
+  writerAccountController.getArticleById
+);
 // Get own articles
 router.get(
   "/articles",
