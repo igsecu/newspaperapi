@@ -246,6 +246,74 @@ const updateArticleImage = async (id, image, image_id) => {
   }
 };
 
+// Get Articles
+const getArticles = async (page, limit, id) => {
+  const results = [];
+  try {
+    const articles = await Article.findAndCountAll({
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      include: {
+        model: WriterAccount,
+        attributes: ["id", "email"],
+        where: {
+          id,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (articles.count === 0) {
+      return false;
+    }
+
+    if (articles.rows.length > 0) {
+      articles.rows.forEach((a) => {
+        results.push({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          introduction: a.introduction,
+          body: a.body,
+          photo: a.photo,
+          comments: a.comments,
+          readers: a.readers,
+          forSubscribers: a.forSubscribers,
+          isShown: a.isShown,
+          writer: {
+            id: a.writerAccount.id,
+            email: a.writerAccount.email,
+          },
+        });
+      });
+
+      return {
+        totalResults: articles.count,
+        totalPages: Math.ceil(articles.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get all articles");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -255,4 +323,5 @@ module.exports = {
   createArticle,
   getArticleById,
   updateArticleImage,
+  getArticles,
 };
