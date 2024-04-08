@@ -194,6 +194,13 @@ const validateBanned = (banned) => {
   return false;
 };
 
+// Validate verified
+const validateVerified = (verified) => {
+  if (verified.toLowerCase() !== "true" && verified.toLowerCase() !== "false")
+    return "Verified query value must be true or false";
+  return false;
+};
+
 // Add one month to date
 const oneMonthFromNow = () => {
   // Get the current date
@@ -389,4 +396,5 @@ module.exports = {
   oneMonthFromNow,
   validatePage,
   validateLimit,
+  validateVerified,
 };
