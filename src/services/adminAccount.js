@@ -537,6 +537,148 @@ const getArticles = async (page, limit) => {
   }
 };
 
+// Get Shown Articles
+const getShownArticles = async (page, limit) => {
+  const results = [];
+  try {
+    const articles = await Article.findAndCountAll({
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      where: {
+        isShown: true,
+      },
+      include: {
+        model: WriterAccount,
+        attributes: ["id", "email"],
+        where: {
+          isBanned: false,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (articles.count === 0) {
+      return false;
+    }
+
+    if (articles.rows.length > 0) {
+      articles.rows.forEach((a) => {
+        results.push({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          introduction: a.introduction,
+          body: a.body,
+          photo: a.photo,
+          comments: a.comments,
+          readers: a.readers,
+          forSubscribers: a.forSubscribers,
+          isShown: a.isShown,
+          writer: {
+            id: a.writerAccount.id,
+            email: a.writerAccount.email,
+          },
+        });
+      });
+
+      return {
+        totalResults: articles.count,
+        totalPages: Math.ceil(articles.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get shown articles");
+  }
+};
+
+// Get Articles for subscribers
+const getArticlesForSubscribers = async (page, limit) => {
+  const results = [];
+  try {
+    const articles = await Article.findAndCountAll({
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      where: {
+        forSubscribers: true,
+      },
+      include: {
+        model: WriterAccount,
+        attributes: ["id", "email"],
+        where: {
+          isBanned: false,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit,
+      offset: page * limit - limit,
+    });
+
+    if (articles.count === 0) {
+      return false;
+    }
+
+    if (articles.rows.length > 0) {
+      articles.rows.forEach((a) => {
+        results.push({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          introduction: a.introduction,
+          body: a.body,
+          photo: a.photo,
+          comments: a.comments,
+          readers: a.readers,
+          forSubscribers: a.forSubscribers,
+          isShown: a.isShown,
+          writer: {
+            id: a.writerAccount.id,
+            email: a.writerAccount.email,
+          },
+        });
+      });
+
+      return {
+        totalResults: articles.count,
+        totalPages: Math.ceil(articles.count / limit),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get articles for subscribers");
+  }
+};
+
 module.exports = {
   createAccount,
   getAccountById,
@@ -553,4 +695,6 @@ module.exports = {
   getBannedWriters,
   getNotBannedWriters,
   getArticles,
+  getShownArticles,
+  getArticlesForSubscribers,
 };
