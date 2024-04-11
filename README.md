@@ -12,6 +12,9 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Create users accounts </li>
 <li>Authenticate with email and password</li>
 <li>Create and Cancel subscription with Paypal</li>
+<li>Get and filter articles - more readers - sections - writers</li>
+<li>Create comments</li>
+<li>Get and delete notifications</li>
 </ul>
 
 #### Writers
@@ -19,7 +22,6 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <ul>
 <li>Authenticate with email and password</li>
 <li>Upload and delete profile images using Cloudinary</li>
-<li>Authenticate with email and password</li>
 <li>Create articles</li>
 <li>Upload articles photos - Cloudinary</li>
 <li>Get own articles</li>
@@ -37,7 +39,7 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Create products in Paypal</li>
 <li>Create plan products in Paypal</li>
 <li>Get all sections</li>
-<li>Get all, banned and not writers</li>
+<li>Get and filter writers</li>
 <li>Get all, shown and for subscribers articles</li>
 </ul>
 
