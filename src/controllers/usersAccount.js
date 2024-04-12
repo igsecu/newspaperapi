@@ -439,6 +439,53 @@ const createComment = async (req, res, next) => {
   }
 };
 
+// Get Article by id
+const getArticleById = async (req, res, next) => {
+  const { id } = req.params;
+
+  try {
+    if (!validateId(id)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: `ID: ${id} - Invalid format!`,
+      });
+    }
+
+    const article = await usersAccountsServices.getArticleById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Article with ID: ${id} not found!`,
+      });
+    }
+
+    if (
+      article.forSubscribers === true &&
+      res.user.subscriber.isActive === false
+    ) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "This article is only for subscribers! You can not access to it...",
+      });
+    }
+
+    const readerCreated = await Article.increment(
+      { readers: 1 },
+      { where: { id } }
+    );
+
+    res.status(200).json({
+      statusCode: 400,
+      msg: `${article.id} has a new reader!`,
+      data: article,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -450,4 +497,5 @@ module.exports = {
   paymentCancel,
   cancelSubscription,
   createComment,
+  getArticleById,
 };
