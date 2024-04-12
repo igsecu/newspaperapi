@@ -6,8 +6,6 @@ const authController = require("../controllers/auth");
 const logoutController = require("../controllers/logout");
 
 /* 
-// Get article by id
-router.get("/article/:id");
 // Get articles by section
 router.get("/articles/section/:id");
 // Get articles by writer
@@ -17,6 +15,12 @@ router.get("/comments/articles/:id");
 // Get notifications
 router.get("/notifications"); */
 
+// Get article by id
+router.get(
+  "/article/:id",
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.getArticleById
+);
 // Payment cancelled
 router.get("/payment/cancel", usersAccountsController.paymentCancel);
 // Payment success
