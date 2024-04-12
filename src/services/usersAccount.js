@@ -425,6 +425,29 @@ const getNotReadNotifications = async (page, id) => {
   }
 };
 
+// Update Read notifications
+const updateReadNotifications = async (id) => {
+  try {
+    const updatedNotifications = await Notification.update(
+      {
+        read: true,
+      },
+      {
+        where: {
+          usersAccountId: id,
+        },
+      }
+    );
+
+    if (updatedNotifications) {
+      return updatedNotifications;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to update notifications");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -440,4 +463,5 @@ module.exports = {
   getArticleComments,
   getNotifications,
   getNotReadNotifications,
+  updateReadNotifications,
 };
