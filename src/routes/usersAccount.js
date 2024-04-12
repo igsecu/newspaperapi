@@ -5,6 +5,12 @@ const usersAccountsController = require("../controllers/usersAccount");
 const authController = require("../controllers/auth");
 const logoutController = require("../controllers/logout");
 
+// Get logged in user not read notifications
+router.get(
+  "/notifications/read/false",
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.getNotReadNotifications
+);
 // Get notifications
 router.get(
   "/notifications",
@@ -55,11 +61,23 @@ router.post(
 router.post("/login", usersAccountsController.login);
 // Create account
 router.post("/account", usersAccountsController.createAccount);
+/* // Update read notifications
+router.put(
+  "/notifications/read/true",
+  ensureAuthenticatedUser,
+  usersNotificationsController.updateReadNotifications
+); */
 // Delete account
 router.delete(
   "/account",
   authController.ensureAuthenticatedUser,
   usersAccountsController.deleteAccount
 );
+/* // Delete notification
+router.delete(
+  "/notification/:id",
+  ensureAuthenticatedUser,
+  usersNotificationsController.deleteNotification
+); */
 
 module.exports = router;
