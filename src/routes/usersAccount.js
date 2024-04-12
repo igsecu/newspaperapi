@@ -61,12 +61,12 @@ router.post(
 router.post("/login", usersAccountsController.login);
 // Create account
 router.post("/account", usersAccountsController.createAccount);
-/* // Update read notifications
+// Update read notifications
 router.put(
   "/notifications/read/true",
-  ensureAuthenticatedUser,
-  usersNotificationsController.updateReadNotifications
-); */
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.updateReadNotifications
+);
 // Delete account
 router.delete(
   "/account",
