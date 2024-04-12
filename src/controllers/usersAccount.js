@@ -604,7 +604,7 @@ const getNotifications = async (req, res, next) => {
 
     res.status(200).json({
       statusCode: 400,
-      data: notifications,
+      ...notifications,
     });
   } catch (error) {
     return next(error);
@@ -688,6 +688,48 @@ const updateReadNotifications = async (req, res, next) => {
   }
 };
 
+// Delete notification
+const deleteNotification = async (req, res, next) => {
+  const { id } = req.params;
+  try {
+    if (!validateId(id)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: `ID: ${id} - Invalid format!`,
+      });
+    }
+
+    const notification = await usersAccountsServices.getNotificationById(id);
+
+    if (!notification) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Notification with ID: ${id} not found!`,
+      });
+    }
+
+    if (notification.account.id !== req.user.id) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "You can not delete a notification that is not yours!",
+      });
+    }
+
+    const deletedNotification = await usersAccountsServices.deleteNotification(
+      id
+    );
+
+    if (deletedNotification) {
+      res.status(200).json({
+        statusCode: 200,
+        msg: "Notification deleted successfully!",
+      });
+    }
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -704,4 +746,5 @@ module.exports = {
   getNotifications,
   getNotReadNotifications,
   updateReadNotifications,
+  deleteNotification,
 };
