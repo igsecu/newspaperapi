@@ -113,6 +113,114 @@ describe("POST /users/comment route -> create new comment", () => {
       .send(comment);
     expect(response.status).toBe(201);
   });
+
+  it("it should return a 200 status code -> logout process", async () => {
+    const response = await request(app)
+      .get("/api/users/logout")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You successfully logged out!");
+  });
+});
+
+describe("GET /users/article/:id route -> get article by id", () => {
+  it("it should return 401 status code -> not authorized", async () => {
+    const response = await request(app).get("/api/users/article/1");
+    expect(response.status).toBe(401);
+    expect(response.body.msg).toBe("You are not authorized! Please login...");
+  });
+  it("it should return a 200 status code -> user logged in", async () => {
+    const user = {
+      email: "user9@newspaper.io",
+      password: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/users/login").send(user);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You logged in successfully");
+    cookie = response.headers["set-cookie"];
+  });
+  it("it should return 400 status code -> article id invalid format", async () => {
+    const response = await request(app)
+      .get("/api/users/article/1")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("ID: 1 - Invalid format!");
+  });
+  it("it should return 404 status code -> article not found", async () => {
+    const response = await request(app)
+      .get("/api/users/article/cdfb5058-c4a5-4cdd-afa5-aa9bd7b5a708")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe(
+      "Article with ID: cdfb5058-c4a5-4cdd-afa5-aa9bd7b5a708 not found!"
+    );
+  });
+  it("it should return 200 status code -> get article", async () => {
+    const response = await request(app)
+      .get("/api/users/article/c49fb391-530b-40b0-b712-5923cc5ca0a2")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+  });
+  it("it should return 200 status code -> get articles with more readers", async () => {
+    const response = await request(app).get("/api/articles/readers");
+    expect(response.status).toBe(200);
+  });
+  it("it should return a 200 status code -> logout process", async () => {
+    const response = await request(app)
+      .get("/api/users/logout")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You successfully logged out!");
+  });
+});
+
+describe("GET /users/comments/article/:id route -> get article comments", () => {
+  it("it should return 401 status code -> not authorized", async () => {
+    const response = await request(app).get("/api/users/comments/article/1");
+    expect(response.status).toBe(401);
+    expect(response.body.msg).toBe("You are not authorized! Please login...");
+  });
+  it("it should return a 200 status code -> user logged in", async () => {
+    const user = {
+      email: "user9@newspaper.io",
+      password: "F4k3ap1s.io",
+    };
+
+    const response = await request(app).post("/api/users/login").send(user);
+    expect(response.status).toBe(200);
+    expect(response.body.msg).toBe("You logged in successfully");
+    cookie = response.headers["set-cookie"];
+  });
+  it("it should return 400 status code -> article not found", async () => {
+    const response = await request(app)
+      .get("/api/users/comments/article/0c803aaf-c56e-40c7-b344-7ca95aa510e1")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe(
+      "Article with ID: 0c803aaf-c56e-40c7-b344-7ca95aa510e1 not found!"
+    );
+  });
+  it("it should return 400 status code -> id invalid format", async () => {
+    const response = await request(app)
+      .get("/api/users/comments/article/1")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(400);
+    expect(response.body.msg).toBe("ID: 1 - Invalid format!");
+  });
+  it("it should return 404 status code -> no comments", async () => {
+    const response = await request(app)
+      .get("/api/users/comments/article/11b0706b-a690-440d-ad20-9ebfda1e3708")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(404);
+    expect(response.body.msg).toBe("There are no comments in this article!");
+  });
+  it("it should return 200 status code -> get comments", async () => {
+    const response = await request(app)
+      .get("/api/users/comments/article/3636fa35-1c08-4105-87ba-136d22bf822d")
+      .set("Cookie", cookie);
+    expect(response.status).toBe(200);
+  });
   it("it should return a 200 status code -> logout process", async () => {
     const response = await request(app)
       .get("/api/users/logout")
