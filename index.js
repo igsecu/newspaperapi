@@ -13,6 +13,7 @@ const Section = require("./src/models/Section");
 const WriterAccount = require("./src/models/WriterAccount");
 const Article = require("./src/models/Article");
 const Subscriber = require("./src/models/Subscriber");
+const Comment = require("./src/models/Comment");
 
 UsersAccount.hasOne(Subscriber);
 Subscriber.belongsTo(UsersAccount);
@@ -28,6 +29,12 @@ Article.belongsTo(WriterAccount);
 
 Section.hasMany(Article);
 Article.belongsTo(Section);
+
+UsersAccount.hasMany(Comment);
+Comment.belongsTo(UsersAccount);
+
+Article.hasMany(Comment);
+Comment.belongsTo(Article);
 
 // Body-Parser middleware
 app.use(express.json());
