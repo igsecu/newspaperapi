@@ -6,15 +6,17 @@ const authController = require("../controllers/auth");
 const logoutController = require("../controllers/logout");
 
 /* 
-// Get articles by section
-router.get("/articles/section/:id");
-// Get articles by writer
-router.get("/articles/writer/:id");
 // Get article comments
 router.get("/comments/articles/:id");
 // Get notifications
 router.get("/notifications"); */
 
+// Get article comments
+router.get(
+  "/comments/article/:id",
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.getArticleComments
+);
 // Get article by id
 router.get(
   "/article/:id",
