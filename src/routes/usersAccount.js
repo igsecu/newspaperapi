@@ -5,12 +5,12 @@ const usersAccountsController = require("../controllers/usersAccount");
 const authController = require("../controllers/auth");
 const logoutController = require("../controllers/logout");
 
-/* 
-// Get article comments
-router.get("/comments/articles/:id");
 // Get notifications
-router.get("/notifications"); */
-
+router.get(
+  "/notifications",
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.getNotifications
+);
 // Get article comments
 router.get(
   "/comments/article/:id",
