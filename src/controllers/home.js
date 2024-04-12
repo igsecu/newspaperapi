@@ -3,6 +3,8 @@ const homeServices = require("../services/home");
 const Redis = require("ioredis");
 const client = new Redis();
 
+const { validateId, validatePage } = require("../utils/index");
+
 // Get last articles
 const getLastArticles = async (req, res, next) => {
   try {
@@ -69,8 +71,75 @@ const getArticles = async (req, res, next) => {
   }
 };
 
+// Get Articles by section
+const getArticlesBySection = async (req, res, next) => {
+  const { id } = req.params;
+  const { page } = req.query;
+
+  if (!validateId(id)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: `ID: ${id} - Invalid format!`,
+    });
+  }
+
+  if (page) {
+    if (validatePage(page)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "Page must be a number",
+      });
+    }
+
+    if (parseInt(page) === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+  }
+
+  try {
+    const sectionFound = await homeServices.getSectionById(id);
+
+    if (!sectionFound) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Section with ID: ${id} not found!`,
+      });
+    }
+
+    const articles = await homeServices.getArticlesBySection(
+      page ? page : 1,
+      id
+    );
+
+    if (!articles) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: "There are no articles in this section!",
+      });
+    }
+
+    if (!articles.data.length) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      ...articles,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   getArticles,
   getArticlesMoreReaders,
   getLastArticles,
+  getArticlesBySection,
 };
