@@ -1,6 +1,9 @@
 const Account = require("../models/UsersAccount");
 const Subscriber = require("../models/Subscriber");
 const Comment = require("../models/Comment");
+const WriterAccount = require("../models/WriterAccount");
+const Section = require("../models/Section");
+const Article = require("../models/Article");
 
 // Check if email exists
 const checkEmailExist = async (email) => {
@@ -214,6 +217,65 @@ const getCommentById = async (id) => {
   }
 };
 
+// Get Article by id
+const getArticleById = async (id) => {
+  try {
+    const article = await Article.findByPk(id, {
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      include: [
+        {
+          model: WriterAccount,
+          attributes: ["id", "email", "image"],
+        },
+        {
+          model: Section,
+          attributes: ["id", "name"],
+        },
+      ],
+    });
+
+    if (article) {
+      return {
+        id: article.id,
+        title: article.title,
+        subtitle: article.subtitle,
+        introduction: article.introduction,
+        body: article.body,
+        photo: article.photo,
+        forSubscribers: article.forSubscribers,
+        isShown: article.isShown,
+        comments: article.comments,
+        readers: article.readers,
+        writer: {
+          id: article.writerAccount.id,
+          email: article.writerAccount.email,
+          image: article.writerAccount.image,
+        },
+        section: {
+          id: article.section.id,
+          name: article.section.name,
+        },
+      };
+    }
+
+    return article;
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to get an article by id");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -225,4 +287,5 @@ module.exports = {
   cancelSubscription,
   createComment,
   getCommentById,
+  getArticleById,
 };
