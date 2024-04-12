@@ -8,11 +8,14 @@ const {
   validatePasswordConfirmation,
   validateId,
   oneMonthFromNow,
+  validateText,
 } = require("../utils/index");
 
 const usersAccountsServices = require("../services/usersAccount");
 const notificationsServices = require("../services/notifications");
 const emailsServices = require("../services/emails");
+const writerAccountServices = require("../services/writerAccount");
+const Article = require("../models/Article");
 
 require("dotenv").config();
 
@@ -357,6 +360,85 @@ const cancelSubscription = async (req, res, next) => {
   );
 };
 
+// Create comment
+const createComment = async (req, res, next) => {
+  const { articleId, text } = req.body;
+
+  if (!articleId) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: "articleId is missing",
+    });
+  }
+
+  if (!validateId(articleId)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: `articleId: ${articleId} - Invalid format!`,
+    });
+  }
+
+  if (validateText(text)) {
+    return res.status(400).json({
+      statusCode: 400,
+      msg: validateText(text),
+    });
+  }
+
+  try {
+    const article = await writerAccountServices.getArticleById(articleId);
+
+    if (!article) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Article with ID: ${articleId} not found!`,
+      });
+    }
+
+    if (
+      article.forSubscribers === true &&
+      req.user.subscriber.isActive === false
+    ) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "This article is for subscribers! Please subscribe to comment...",
+      });
+    }
+
+    const commentCreated = await usersAccountsServices.createComment(
+      req.user.id,
+      articleId,
+      text
+    );
+
+    if (commentCreated) {
+      await Article.increment(
+        {
+          comments: 1,
+        },
+        {
+          where: {
+            id: articleId,
+          },
+        }
+      );
+    }
+
+    const comment = await usersAccountsServices.getCommentById(
+      commentCreated.id
+    );
+
+    res.status(201).json({
+      statusCode: 201,
+      msg: "Comment created successfully!",
+      data: comment,
+    });
+  } catch (error) {
+    console.log(error.message);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -367,4 +449,5 @@ module.exports = {
   paymentSuccess,
   paymentCancel,
   cancelSubscription,
+  createComment,
 };
