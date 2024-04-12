@@ -73,11 +73,11 @@ router.delete(
   authController.ensureAuthenticatedUser,
   usersAccountsController.deleteAccount
 );
-/* // Delete notification
+// Delete notification
 router.delete(
   "/notification/:id",
-  ensureAuthenticatedUser,
-  usersNotificationsController.deleteNotification
-); */
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.deleteNotification
+);
 
 module.exports = router;
