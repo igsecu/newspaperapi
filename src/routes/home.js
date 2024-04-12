@@ -5,6 +5,8 @@ const homeController = require("../controllers/home");
 
 const { homeArticlesFromCache } = require("../controllers/cache");
 
+// Get articles by section
+router.get("/articles/section/:id", homeController.getArticlesBySection);
 // Get last articles
 router.get("/articles/last", homeController.getLastArticles);
 // Get more readers articles
