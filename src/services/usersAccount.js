@@ -4,6 +4,7 @@ const Comment = require("../models/Comment");
 const WriterAccount = require("../models/WriterAccount");
 const Section = require("../models/Section");
 const Article = require("../models/Article");
+const Notification = require("../models/Notification");
 
 // Check if email exists
 const checkEmailExist = async (email) => {
@@ -329,6 +330,52 @@ const getArticleComments = async (page, id) => {
   }
 };
 
+// Get notifications
+const getNotifications = async (page, id) => {
+  const results = [];
+
+  try {
+    const notifications = await Notification.findAndCountAll({
+      attributes: ["id", "text", "read"],
+      include: {
+        model: Account,
+        where: {
+          id,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit: 10,
+      offset: page * 10 - 10,
+    });
+
+    if (notifications.count === 0) {
+      return false;
+    }
+
+    if (notifications.rows.length > 0) {
+      notifications.rows.forEach((c) => {
+        results.push({
+          id: c.id,
+          text: c.text,
+          read: c.read,
+        });
+      });
+
+      return {
+        totalResults: notifications.count,
+        totalPages: Math.ceil(notifications.count / 10),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to get all notifications");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -342,4 +389,5 @@ module.exports = {
   getCommentById,
   getArticleById,
   getArticleComments,
+  getNotifications,
 };
