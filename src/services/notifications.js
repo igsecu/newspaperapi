@@ -4,7 +4,7 @@ const Notification = require("../models/Notification");
 const createNotification = async (id, text) => {
   try {
     await Notification.create({
-      accountId: id,
+      usersAccountId: id,
       text,
     });
   } catch (error) {
