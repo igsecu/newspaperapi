@@ -1,5 +1,6 @@
 const Account = require("../models/UsersAccount");
 const Subscriber = require("../models/Subscriber");
+const Comment = require("../models/Comment");
 
 // Check if email exists
 const checkEmailExist = async (email) => {
@@ -169,6 +170,50 @@ const cancelSubscription = async (id, userId) => {
   }
 };
 
+// Create Comment
+const createComment = async (userId, articleId, text) => {
+  try {
+    const commentCreated = await Comment.create({
+      usersAccountId: userId,
+      articleId,
+      text,
+    });
+
+    return commentCreated;
+  } catch (error) {
+    throw new Error("Error trying to create a new comment");
+  }
+};
+
+// Get Comment by Id
+const getCommentById = async (id) => {
+  try {
+    const comment = await Comment.findByPk(id, {
+      attributes: ["id", "text"],
+      include: {
+        model: Account,
+        attributes: ["id", "email"],
+      },
+    });
+
+    if (comment) {
+      return {
+        id: comment.id,
+        text: comment.text,
+        account: {
+          id: comment.usersAccount.id,
+          email: comment.usersAccount.email,
+        },
+      };
+    }
+
+    return comment;
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to get a comment by its id");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -178,4 +223,6 @@ module.exports = {
   createSubscriber,
   updateSubscriber,
   cancelSubscription,
+  createComment,
+  getCommentById,
 };
