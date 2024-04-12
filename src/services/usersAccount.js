@@ -376,6 +376,55 @@ const getNotifications = async (page, id) => {
   }
 };
 
+// Get not read notifications
+const getNotReadNotifications = async (page, id) => {
+  const results = [];
+
+  try {
+    const notifications = await Notification.findAndCountAll({
+      attributes: ["id", "text", "read"],
+      where: {
+        read: false,
+      },
+      include: {
+        model: Account,
+        where: {
+          id,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit: 10,
+      offset: page * 10 - 10,
+    });
+
+    if (notifications.count === 0) {
+      return false;
+    }
+
+    if (notifications.rows.length > 0) {
+      notifications.rows.forEach((c) => {
+        results.push({
+          id: c.id,
+          text: c.text,
+          read: c.read,
+        });
+      });
+
+      return {
+        totalResults: notifications.count,
+        totalPages: Math.ceil(notifications.count / 10),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to get not read notifications");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -390,4 +439,5 @@ module.exports = {
   getArticleById,
   getArticleComments,
   getNotifications,
+  getNotReadNotifications,
 };
