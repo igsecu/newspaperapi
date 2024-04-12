@@ -563,6 +563,54 @@ const getArticleComments = async (req, res, next) => {
   }
 };
 
+// Get notifications
+const getNotifications = async (req, res, next) => {
+  const { page } = req.query;
+
+  if (page) {
+    if (validatePage(page)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "Page must be a number",
+      });
+    }
+
+    if (parseInt(page) === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+  }
+  try {
+    const notifications = await usersAccountsServices.getNotifications(
+      page ? page : 1,
+      req.user.id
+    );
+
+    if (!notifications) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: "You do not have notifications!",
+      });
+    }
+
+    if (!notifications.data.length) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 400,
+      data: notifications,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -576,4 +624,5 @@ module.exports = {
   createComment,
   getArticleById,
   getArticleComments,
+  getNotifications,
 };
