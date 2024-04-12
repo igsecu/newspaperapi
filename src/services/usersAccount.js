@@ -276,6 +276,59 @@ const getArticleById = async (id) => {
   }
 };
 
+// Get article comments
+const getArticleComments = async (page, id) => {
+  const results = [];
+  try {
+    const comments = await Comment.findAndCountAll({
+      attributes: ["id", "text"],
+      include: [
+        {
+          model: Article,
+          where: {
+            id,
+          },
+        },
+        {
+          model: Account,
+          attributes: ["id", "email"],
+        },
+      ],
+      order: [["createdAt", "DESC"]],
+      limit: 10,
+      offset: page * 10 - 10,
+    });
+
+    if (comments.count === 0) {
+      return false;
+    }
+
+    if (comments.rows.length > 0) {
+      comments.rows.forEach((c) => {
+        results.push({
+          id: c.id,
+          text: c.text,
+          account: {
+            id: c.usersAccount.id,
+            email: c.usersAccount.email,
+          },
+        });
+      });
+
+      return {
+        totalResults: comments.count,
+        totalPages: Math.ceil(comments.count / 10),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    throw new Error("Error trying to get article comments");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -288,4 +341,5 @@ module.exports = {
   createComment,
   getCommentById,
   getArticleById,
+  getArticleComments,
 };
