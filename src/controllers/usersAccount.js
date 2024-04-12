@@ -486,6 +486,83 @@ const getArticleById = async (req, res, next) => {
   }
 };
 
+// Get article comments
+const getArticleComments = async (req, res, next) => {
+  const { id } = req.params;
+  const { page } = req.query;
+
+  if (page) {
+    if (validatePage(page)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "Page must be a number",
+      });
+    }
+
+    if (parseInt(page) === 0) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+  }
+
+  try {
+    if (!validateId(id)) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: `ID: ${id} - Invalid format!`,
+      });
+    }
+
+    const article = await usersAccountsServices.getArticleById(id);
+
+    if (!article) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Article with ID: ${id} not found!`,
+      });
+    }
+
+    if (
+      article.forSubscribers === true &&
+      req.user.subscriber.isActive === false
+    ) {
+      return res.status(400).json({
+        statusCode: 400,
+        msg: "This article is only for subscribers! You can not access to it...",
+      });
+    }
+
+    const comments = await usersAccountsServices.getArticleComments(
+      page ? page : 1,
+      id
+    );
+
+    if (!comments) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: "There are no comments in this article!",
+      });
+    }
+
+    if (!comments.data.length) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `Page ${page} not found!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 400,
+      data: comments,
+    });
+  } catch (error) {
+    console.log(error);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -498,4 +575,5 @@ module.exports = {
   cancelSubscription,
   createComment,
   getArticleById,
+  getArticleComments,
 };
