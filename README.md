@@ -14,7 +14,7 @@ Javascript - Nodejs - ExpressJs - Postgresql - Sequelize - PassportJs - Jest - S
 <li>Create and Cancel subscription with Paypal</li>
 <li>Get and filter articles - more readers - sections - writers</li>
 <li>Create comments</li>
-<li>Get and delete notifications</li>
+<li>Get, update and delete notifications</li>
 </ul>
 
 #### Writers
