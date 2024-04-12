@@ -259,10 +259,101 @@ const getArticlesBySection = async (page, id) => {
   }
 };
 
+// Get writer by id
+const getWriterById = async (id) => {
+  try {
+    const writer = await WriterAccount.findByPk(id, {
+      attributes: ["id", "email", "isBanned"],
+    });
+
+    if (writer) {
+      return {
+        id: writer.id,
+        email: writer.email,
+        isBanned: writer.isBanned,
+      };
+    }
+
+    return writer;
+  } catch (error) {
+    throw new Error("Error trying to get a writer by its id");
+  }
+};
+
+// Get articles by writer
+const getArticlesByWriter = async (page, id) => {
+  const results = [];
+  try {
+    const articles = await Article.findAndCountAll({
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      include: {
+        model: WriterAccount,
+        attributes: ["id", "email"],
+        where: {
+          id,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit: 10,
+      offset: page * 10 - 10,
+    });
+
+    if (articles.count === 0) {
+      return false;
+    }
+
+    if (articles.rows.length > 0) {
+      articles.rows.forEach((a) => {
+        results.push({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          introduction: a.introduction,
+          body: a.body,
+          photo: a.photo,
+          comments: a.comments,
+          readers: a.readers,
+          forSubscribers: a.forSubscribers,
+          isShown: a.isShown,
+          writer: {
+            id: a.writerAccount.id,
+            email: a.writerAccount.email,
+          },
+        });
+      });
+
+      return {
+        totalResults: articles.count,
+        totalPages: Math.ceil(articles.count / 10),
+        page: parseInt(page),
+        data: results,
+      };
+    } else {
+      return { data: [] };
+    }
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get all articles by writer");
+  }
+};
+
 module.exports = {
   getArticles,
   getArticlesMoreReaders,
   getLastArticles,
   getSectionById,
   getArticlesBySection,
+  getArticlesByWriter,
+  getWriterById,
 };
