@@ -3,6 +3,27 @@ const homeServices = require("../services/home");
 const Redis = require("ioredis");
 const client = new Redis();
 
+// Get last articles
+const getLastArticles = async (req, res, next) => {
+  try {
+    const articles = await homeServices.getLastArticles();
+
+    if (!articles) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: `No articles to show!`,
+      });
+    }
+
+    res.status(200).json({
+      statusCode: 200,
+      data: articles,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
 // Get articles more readers
 const getArticlesMoreReaders = async (req, res, next) => {
   try {
@@ -51,4 +72,5 @@ const getArticles = async (req, res, next) => {
 module.exports = {
   getArticles,
   getArticlesMoreReaders,
+  getLastArticles,
 };
