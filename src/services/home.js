@@ -1,6 +1,62 @@
 const Article = require("../models/Article");
 const WriterAccount = require("../models/WriterAccount");
 
+// Get last articles
+const getLastArticles = async () => {
+  const results = [];
+  try {
+    const articles = await Article.findAll({
+      attributes: [
+        "id",
+        "title",
+        "subtitle",
+        "introduction",
+        "body",
+        "photo",
+        "comments",
+        "readers",
+        "forSubscribers",
+        "isShown",
+      ],
+      include: {
+        model: WriterAccount,
+        attributes: ["id", "email"],
+        where: {
+          isBanned: false,
+        },
+      },
+      order: [["createdAt", "DESC"]],
+      limit: 10,
+    });
+
+    if (articles) {
+      articles.forEach((a) => {
+        results.push({
+          id: a.id,
+          title: a.title,
+          subtitle: a.subtitle,
+          introduction: a.introduction,
+          body: a.body,
+          photo: a.photo,
+          comments: a.comments,
+          readers: a.readers,
+          forSubscribers: a.forSubscribers,
+          isShown: a.isShown,
+          writer: {
+            id: a.writerAccount.id,
+            email: a.writerAccount.email,
+          },
+        });
+      });
+    }
+
+    return results;
+  } catch (error) {
+    console.log(error);
+    throw new Error("Error trying to get last articles");
+  }
+};
+
 // Get articles more readers
 const getArticlesMoreReaders = async () => {
   const results = [];
@@ -117,4 +173,5 @@ const getArticles = async () => {
 module.exports = {
   getArticles,
   getArticlesMoreReaders,
+  getLastArticles,
 };
