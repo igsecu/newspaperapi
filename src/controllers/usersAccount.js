@@ -659,6 +659,35 @@ const getNotReadNotifications = async (req, res, next) => {
   }
 };
 
+// Update read notifications
+const updateReadNotifications = async (req, res, next) => {
+  try {
+    const notReadNotifications =
+      await usersAccountsServices.getNotReadNotifications(1, req.user.id);
+
+    if (!notReadNotifications) {
+      return res.status(404).json({
+        statusCode: 404,
+        msg: "You do not have not read notifications!",
+      });
+    }
+
+    const notifications = await usersAccountsServices.updateReadNotifications(
+      req.user.id
+    );
+
+    if (notifications) {
+      res.status(200).json({
+        statusCode: 200,
+        msg: "All your notifications are read!",
+      });
+    }
+  } catch (error) {
+    console.log(error.message);
+    return next(error);
+  }
+};
+
 module.exports = {
   createAccount,
   login,
@@ -674,4 +703,5 @@ module.exports = {
   getArticleComments,
   getNotifications,
   getNotReadNotifications,
+  updateReadNotifications,
 };
