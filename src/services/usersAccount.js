@@ -448,6 +448,52 @@ const updateReadNotifications = async (id) => {
   }
 };
 
+// Get notification by id
+const getNotificationById = async (id) => {
+  try {
+    const result = await Notification.findByPk(id, {
+      attributes: ["id", "text", "read"],
+      include: {
+        model: Account,
+        attributes: ["id"],
+      },
+    });
+
+    if (result) {
+      return {
+        id: result.id,
+        text: result.text,
+        read: result.read,
+        account: {
+          id: result.usersAccount.id,
+        },
+      };
+    }
+
+    return result;
+  } catch (error) {
+    throw new Error("Error trying to get a notifications by its id");
+  }
+};
+
+// Delete notification
+const deleteNotification = async (id) => {
+  try {
+    const deletedNotification = await Notification.destroy({
+      where: {
+        id,
+      },
+    });
+
+    if (deletedNotification) {
+      return deletedNotification;
+    }
+  } catch (error) {
+    console.log(error.message);
+    throw new Error("Error trying to delete a notification");
+  }
+};
+
 module.exports = {
   checkEmailExist,
   createAccount,
@@ -464,4 +510,6 @@ module.exports = {
   getNotifications,
   getNotReadNotifications,
   updateReadNotifications,
+  getNotificationById,
+  deleteNotification,
 };
