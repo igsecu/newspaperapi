@@ -5,6 +5,18 @@ const usersAccountsController = require("../controllers/usersAccount");
 const authController = require("../controllers/auth");
 const logoutController = require("../controllers/logout");
 
+/* 
+// Get article by id
+router.get("/article/:id");
+// Get articles by section
+router.get("/articles/section/:id");
+// Get articles by writer
+router.get("/articles/writer/:id");
+// Get article comments
+router.get("/comments/articles/:id");
+// Get notifications
+router.get("/notifications"); */
+
 // Payment cancelled
 router.get("/payment/cancel", usersAccountsController.paymentCancel);
 // Payment success
@@ -15,6 +27,12 @@ router.get("/account/:id/verify", usersAccountsController.verifyAccount);
 router.get("/logout", logoutController.logout);
 // Get logged in account
 router.get("/account", usersAccountsController.getLoggedInAccount);
+// Create comment
+router.post(
+  "/comment",
+  authController.ensureAuthenticatedUser,
+  usersAccountsController.createComment
+);
 // Cancel subscription
 router.post(
   "/cancel-subscription",
